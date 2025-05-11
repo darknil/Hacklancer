@@ -1,0 +1,14 @@
+// bot/CommandSubscriber.ts
+import { Bot } from 'grammy'
+import { BotCommandHandlers } from '../types/BotCommandHandlers'
+
+export class CommandSubscriber {
+  constructor(private bot: Bot) {}
+
+  subscribe(handlers: BotCommandHandlers) {
+    for (const [command, handler] of Object.entries(handlers)) {
+      this.bot.command(command, (ctx) => handler.handle(ctx))
+      console.log(`Команда /${command} зарегистрирована`)
+    }
+  }
+}

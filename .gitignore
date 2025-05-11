@@ -21,7 +21,6 @@ Thumbs.db
 
 # Env файлы
 .env
-.env.*
 
 # IDE и редакторы
 .vscode/
