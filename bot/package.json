@@ -1,10 +1,13 @@
 {
   "devDependencies": {
+    "@types/node-fetch": "^2.6.12",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "grammy": "^1.36.1"
+    "dotenv": "^16.5.0",
+    "grammy": "^1.36.1",
+    "redis": "^5.0.1"
   },
   "name": "bot",
   "version": "1.0.0",

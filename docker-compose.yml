@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --notify-keyspace-events Ex
+    ports:
+      - '${REDIS_PORT}:6379'
+    volumes:
+      - redis_data:/data
+
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: bot
+    depends_on:
+      - redis
+    ports:
+      - '${BOT_PORT}:3000'
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+
+volumes:
+  redis_data:
+    driver: local
