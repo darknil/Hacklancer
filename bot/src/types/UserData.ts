@@ -1,9 +1,9 @@
-import { UserStateKey } from './UserState'
-
 export type UserData = {
+  chatId: number
   username?: string
+  nickname?: string
   first_name?: string
   last_name?: string
-  state?: UserStateKey
+  state?: string
   language_code?: string
 }

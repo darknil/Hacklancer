@@ -1,7 +1,7 @@
 import { Context } from 'grammy'
 import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
 
-export class EnterNameState implements UserStateHandler {
+export class EnterDescriptionState implements UserStateHandler {
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id.toString()
     if (!userId) return
