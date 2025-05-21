@@ -1,0 +1,48 @@
+import axios from 'axios'
+import { UserData } from '../types/UserData'
+import { UserDataSchema } from '../types/UserDataSchema'
+
+export class ExternalUserService {
+  private baseUrl: string
+
+  constructor() {
+    this.baseUrl = `http://${process.env.USER_SERVICE_HOST}:3000`
+  }
+  async fetchUserProfile(chatId: number): Promise<UserData | null> {
+    try {
+      const res = await axios.get(`${this.baseUrl}/users/${chatId}`)
+      const validated = UserDataSchema.safeParse(res.data) as {
+        success: boolean
+        data: UserData
+        error?: any
+      }
+
+      if (!validated.success) {
+        console.error('Validation error :', validated.error)
+        return null
+      }
+
+      return validated.data
+    } catch (err) {
+      return null
+    }
+  }
+  async createUser(userData: UserData) {
+    try {
+      console.log('path :', `${this.baseUrl}/users`)
+      const res = await axios.post(`${this.baseUrl}/users`, userData)
+      return res.data
+    } catch (err) {
+      return null
+    }
+  }
+
+  async updateUser(userData: UserData): Promise<void> {
+    try {
+      await axios.put(`${this.baseUrl}/users/${userData.chatId}`, userData)
+    } catch (err) {
+      console.error('saving user error :', err)
+      return
+    }
+  }
+}

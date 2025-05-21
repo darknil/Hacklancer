@@ -1,6 +1,5 @@
 import { Context } from 'grammy'
 import { UserStateHandlers } from '../types/UserStateHandlers'
-import UserRepository from '../repositories/UserRepository'
 
 export class StateSubscriber {
   private handlers: UserStateHandlers | undefined
@@ -9,7 +8,6 @@ export class StateSubscriber {
   }
 
   async handle(state: string, ctx: Context) {
-    console.log('handlers :', this.handlers)
     if (!this.handlers) {
       await ctx.reply('Неподдерживаемое состояние.')
       return

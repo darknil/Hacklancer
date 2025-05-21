@@ -1,6 +1,6 @@
 export type UserState = {
-  group: 'registration'
-  value: 'waiting_for_name'
+  group: string
+  value: string
 }
 
 export type UserStateKey = `${UserState['group']}:${UserState['value']}`

@@ -9,6 +9,8 @@ services:
       - '${REDIS_PORT}:6379'
     volumes:
       - redis_data:/data
+    networks:
+      - app-network
 
   bot:
     build:
@@ -24,7 +26,53 @@ services:
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+      - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+      - USER_SERVICE_HOST=${USER_SERVICE_HOST}
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    ports:
+      - '${USER_SERVICE_PORT}:3000'
+    volumes:
+      - ./user-service:/app
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   redis_data:
     driver: local
+  pgdata:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

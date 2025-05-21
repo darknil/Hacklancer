@@ -1,6 +1,7 @@
 import { UserStateHandlers } from '../types/UserStateHandlers'
-import { EnterNameState } from './state/registration/enterName'
+import { AwaitingNameState } from './state/registration/awaitingName'
+import { STATES } from '../constants/states'
 
 export const createStateHandlers = (): UserStateHandlers => ({
-  'registration:waiting_for_name': new EnterNameState()
+  [STATES.REGISTRATION.WAITING_FOR_NAME]: new AwaitingNameState()
 })
