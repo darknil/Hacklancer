@@ -6,24 +6,41 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from '../dto/user.dtos';
+import {
+  CreateUserDto,
+  ResponseUserDto,
+  UpdateUserDto,
+} from '../dto/user.dtos';
 import { STATES } from '../constants/states';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly httpService: HttpService,
   ) {}
 
-  async getUserById(id: string): Promise<UserEntity> {
+  async getUserById(id: string): Promise<ResponseUserDto> {
     const user = await this.userRepository.findOne({
       where: { chatId: Number(id) },
     });
     if (!user) {
       throw new NotFoundException(`Пользователь с chatId=${id} не найден`);
     }
-    return user;
+
+    let role = null;
+    if (user.roleId) {
+      const rolesServiceUrl = `http://${process.env.ROLE_SERVICE_HOST}:3000/roles/${user.roleId}`;
+      const response = await firstValueFrom(
+        this.httpService.get(rolesServiceUrl),
+      );
+      role = response.data;
+    }
+
+    return new ResponseUserDto({ ...user, role });
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {

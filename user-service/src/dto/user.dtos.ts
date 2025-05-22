@@ -80,3 +80,22 @@ export class UpdateUserDto {
   @IsString()
   photoURL?: string;
 }
+export class ResponseUserDto {
+  chatId: number;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
+  state?: string;
+  language_code?: string;
+  nickname?: string;
+  city?: string;
+  description?: string;
+  photoURL?: string;
+  roleId?: string;
+
+  role?: string;
+
+  constructor(partial: Partial<ResponseUserDto>) {
+    Object.assign(this, partial);
+  }
+}
