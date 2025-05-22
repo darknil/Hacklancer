@@ -19,6 +19,8 @@ services:
     container_name: bot
     depends_on:
       - redis
+      - role-service
+      - user-service
     ports:
       - '${BOT_PORT}:3000'
     env_file:
@@ -57,6 +59,28 @@ services:
       - postgres
     ports:
       - '${USER_SERVICE_PORT}:3000'
+    volumes:
+      - ./user-service:/app
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  role-service:
+    build:
+      context: ./role-service
+      dockerfile: Dockerfile
+    container_name: role-service
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    ports:
+      - '${ROLE_SERVICE_PORT}:3000'
     volumes:
       - ./user-service:/app
     networks:

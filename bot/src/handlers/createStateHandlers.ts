@@ -1,5 +1,5 @@
 import { UserStateHandlers } from '../types/UserStateHandlers'
-import { AwaitingNameState } from './state/registration/AwaitingName'
+import { AwaitingNameState } from './state/registration/awaitingName'
 import { STATES } from '../constants/states'
 import { AwaitingCityState } from './state/registration/AwaitingCity'
 import { AwaitingDescriptionState } from './state/registration/AwaitingDescription'
