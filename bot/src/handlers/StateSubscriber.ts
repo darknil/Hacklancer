@@ -19,7 +19,7 @@ export class StateSubscriber {
       await handler.handle(ctx)
     } else {
       // Если обработчик не найден, отправляем сообщение о неподдерживаемом состоянии
-      await ctx.reply('Неподдерживаемое состояние.')
+      await ctx.reply('нет обработчика')
     }
   }
 }

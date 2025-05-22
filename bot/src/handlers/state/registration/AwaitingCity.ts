@@ -4,7 +4,7 @@ import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
 import { MESSAGES } from '../../../constants/messages'
 
-export class AwaitingNameState implements UserStateHandler {
+export class AwaitingCityState implements UserStateHandler {
   private userRepository: UserRepository
 
   constructor() {
@@ -12,7 +12,7 @@ export class AwaitingNameState implements UserStateHandler {
   }
 
   async handle(ctx: Context): Promise<void> {
-    const userId = ctx.from?.id
+    const userId = ctx.from?.id.toString()
     if (!userId) return
 
     const userLang = ctx.from?.language_code
@@ -21,15 +21,15 @@ export class AwaitingNameState implements UserStateHandler {
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {
-      await ctx.reply(MESSAGES[lang].registration.enterName)
+      await ctx.reply(MESSAGES[lang].registration.enterCity)
       return
     }
 
     this.userRepository.update(userId, {
-      nickname: message,
-      state: STATES.REGISTRATION.AWAITING_CITY
+      city: message,
+      state: STATES.REGISTRATION.AWAITING_DESCRIPTION
     })
 
-    await ctx.reply(MESSAGES[lang].registration.enterCity)
+    await ctx.reply(MESSAGES[lang].registration.enterDescription)
   }
 }

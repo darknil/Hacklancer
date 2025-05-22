@@ -31,4 +31,7 @@ export class UserService {
 
     throw new Error(`Failed to create user ${userData}`)
   }
+  async saveUser(user: UserData) {
+    await this.externalUserService.updateUser(user)
+  }
 }
