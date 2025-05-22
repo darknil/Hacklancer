@@ -25,12 +25,10 @@ export class AwaitingNameState implements UserStateHandler {
       return
     }
 
-    this.userRepository.update(userId, { nickname: message })
-
-    await this.userRepository.setState(
-      userId,
-      STATES.REGISTRATION.AWAITING_CITY
-    )
+    this.userRepository.update(userId, {
+      nickname: message,
+      state: STATES.REGISTRATION.AWAITING_CITY
+    })
 
     await ctx.reply(MESSAGES[lang].registration.enterCity)
   }

@@ -24,12 +24,11 @@ export class AwaitingDescriptionState implements UserStateHandler {
       return
     }
 
-    this.userRepository.update(userId, { description: message })
+    this.userRepository.update(userId, {
+      description: message,
+      state: STATES.REGISTRATION.AWAITING_PHOTO
+    })
 
-    await this.userRepository.setState(
-      userId,
-      STATES.REGISTRATION.AWAITING_PHOTO
-    )
     const userData = await this.userRepository.get(userId)
     console.log(userData)
     await ctx.reply(

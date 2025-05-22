@@ -28,12 +28,10 @@ export class AwaitingPhotoState implements UserStateHandler {
       return
     }
 
-    this.userRepository.update(userId, { photoURL: photo[0].file_id })
-
-    await this.userRepository.setState(
-      userId,
-      STATES.REGISTRATION.AWAITING_CITY
-    )
+    this.userRepository.update(userId, {
+      photoURL: photo[0].file_id,
+      state: STATES.REGISTRATION.AWAITING_CITY
+    })
 
     await ctx.reply(MESSAGES[lang].registration.enterCity)
   }

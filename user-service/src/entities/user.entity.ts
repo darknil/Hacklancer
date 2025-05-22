@@ -31,4 +31,7 @@ export class UserEntity {
 
   @Column({ type: 'varchar', nullable: true })
   photoURL?: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  roleId?: string;
 }
