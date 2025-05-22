@@ -1,7 +1,11 @@
 import { UserStateHandlers } from '../types/UserStateHandlers'
-import { AwaitingNameState } from './state/registration/awaitingName'
+import { AwaitingNameState } from './state/registration/AwaitingName'
 import { STATES } from '../constants/states'
+import { AwaitingCityState } from './state/registration/AwaitingCity'
+import { AwaitingDescriptionState } from './state/registration/AwaitingDescription'
 
 export const createStateHandlers = (): UserStateHandlers => ({
-  [STATES.REGISTRATION.WAITING_FOR_NAME]: new AwaitingNameState()
+  [STATES.REGISTRATION.AWAITING_NAME]: new AwaitingNameState(),
+  [STATES.REGISTRATION.AWAITING_CITY]: new AwaitingCityState(),
+  [STATES.REGISTRATION.AWAITING_DESCRIPTION]: new AwaitingDescriptionState()
 })

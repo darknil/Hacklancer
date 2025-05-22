@@ -15,9 +15,6 @@ class UserSessionRepository {
     await redis.set(`user_session:${userId}`, JSON.stringify(data), {
       EX: ttlSeconds
     })
-    console.log(
-      `User and Session for ${userId} saved with TTL ${ttlSeconds} seconds.`
-    )
   }
 
   static async getUserSession(userId: string): Promise<UserData | null> {

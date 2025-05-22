@@ -1,18 +1,17 @@
 import { Context } from 'grammy'
 import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
+import { MESSAGES } from '../../../constants/messages'
 import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
-import { MESSAGES } from '../../../constants/messages'
 
-export class AwaitingNameState implements UserStateHandler {
+export class AwaitingDescriptionState implements UserStateHandler {
   private userRepository: UserRepository
 
   constructor() {
     this.userRepository = new UserRepository()
   }
-
   async handle(ctx: Context): Promise<void> {
-    const userId = ctx.from?.id
+    const userId = ctx.from?.id.toString()
     if (!userId) return
 
     const userLang = ctx.from?.language_code
@@ -21,17 +20,24 @@ export class AwaitingNameState implements UserStateHandler {
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {
-      await ctx.reply(MESSAGES[lang].registration.enterName)
+      await ctx.reply(MESSAGES[lang].registration.enterDescription)
       return
     }
 
-    this.userRepository.update(userId, { nickname: message })
+    this.userRepository.update(userId, { description: message })
 
     await this.userRepository.setState(
       userId,
-      STATES.REGISTRATION.AWAITING_CITY
+      STATES.REGISTRATION.AWAITING_PHOTO
     )
-
-    await ctx.reply(MESSAGES[lang].registration.enterCity)
+    const userData = await this.userRepository.get(userId)
+    console.log(userData)
+    await ctx.reply(
+      MESSAGES[lang].registration.registered(
+        userData?.nickname,
+        userData?.city,
+        userData?.description
+      )
+    )
   }
 }

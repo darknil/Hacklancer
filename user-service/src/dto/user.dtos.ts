@@ -9,9 +9,6 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  nickname?: string;
-  @IsOptional()
-  @IsString()
   first_name?: string;
 
   @IsOptional()
@@ -25,6 +22,22 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   language_code?: string;
+
+  @IsOptional()
+  @IsString()
+  nickname?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  photoURL?: string;
 }
 export class getUserDto {
   @IsNumber()
@@ -37,10 +50,6 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  nickname?: string;
-
-  @IsOptional()
-  @IsString()
   first_name?: string;
 
   @IsOptional()
@@ -54,4 +63,20 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   language_code?: string;
+
+  @IsOptional()
+  @IsString()
+  nickname?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  photoURL?: string;
 }
