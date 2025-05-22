@@ -6,5 +6,7 @@ export const STATES = {
     AWAITING_PHOTO: 'registration:awaiting_photo',
     AWAITING_APPROVAL: 'registration:awaiting_approval'
     // Можно добавить другие состояния регистрации
-  }
+  },
+  Home: {},
+  Profile: {}
 } as const
