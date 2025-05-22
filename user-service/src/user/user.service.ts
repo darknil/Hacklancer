@@ -27,20 +27,12 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { chatId: Number(id) },
     });
+
     if (!user) {
-      throw new NotFoundException(`Пользователь с chatId=${id} не найден`);
+      throw new NotFoundException(`User with chatId=${id} not found`);
     }
 
-    let role = null;
-    if (user.roleId) {
-      const rolesServiceUrl = `http://${process.env.ROLE_SERVICE_HOST}:3000/roles/${user.roleId}`;
-      const response = await firstValueFrom(
-        this.httpService.get(rolesServiceUrl),
-      );
-      role = response.data;
-    }
-
-    return new ResponseUserDto({ ...user, role });
+    return new ResponseUserDto({ ...user });
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
