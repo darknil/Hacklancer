@@ -1,9 +1,12 @@
-export type UserData = {
+export interface UserData {
   chatId: number
   username?: string
-  nickname?: string
   first_name?: string
   last_name?: string
-  state?: string
   language_code?: string
+  state?: string
+  nickname?: string
+  city?: string
+  description?: string
+  photoURL?: string
 }

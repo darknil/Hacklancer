@@ -20,12 +20,18 @@ class TGBot {
 
     this.bot = new Bot(token)
     this.services = ServiceConfig.createServices(this.bot)
+    ServiceConfig.subscribeTTLExpiration(this.services.userService)
 
     this.registerCommands()
     this.registerMessageHandler()
 
     const stateHandlers = createStateHandlers()
     this.services.stateSubscriber.registerHandlers(stateHandlers)
+
+    this.bot.start()
+    console.log('=========================')
+    console.log('Bot is running:@Hacklancer_bot')
+    console.log('=========================')
   }
 
   private registerCommands() {
@@ -37,22 +43,6 @@ class TGBot {
       await this.services.messageHandler.handle(ctx)
     })
   }
-
-  public start() {
-    // Подписка на истечение TTL сессии
-    UserSessionRepository.subscribeToSessionExpiration((userId) => {
-      console.log(
-        `Сессия пользователя ${userId} истекла — здесь можно выполнить сохранение в БД`
-      )
-      // saveToDB(userId)
-    })
-
-    this.bot.start()
-    console.log('=========================')
-    console.log('Bot is running:@Hacklancer_bot')
-    console.log('=========================')
-  }
 }
 
 const myBot = new TGBot()
-myBot.start()

@@ -9,17 +9,26 @@ export class UserEntity {
   username?: string;
 
   @Column({ type: 'varchar', nullable: true })
-  nickname?: string;
-
-  @Column({ type: 'varchar', nullable: true })
   first_name?: string;
 
   @Column({ type: 'varchar', nullable: true })
   last_name?: string;
 
   @Column({ type: 'varchar', nullable: true })
-  state?: string; // если UserStateKey — enum, можно использовать enum-поле
+  state?: string;
 
   @Column({ type: 'varchar', nullable: true })
   language_code?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  nickname?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  city?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  description?: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  photoURL?: string;
 }
