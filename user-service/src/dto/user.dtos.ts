@@ -93,8 +93,6 @@ export class ResponseUserDto {
   photoURL?: string;
   roleId?: string;
 
-  role?: string;
-
   constructor(partial: Partial<ResponseUserDto>) {
     Object.assign(this, partial);
   }
