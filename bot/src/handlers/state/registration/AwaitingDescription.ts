@@ -3,12 +3,20 @@ import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
 import { MESSAGES } from '../../../constants/messages'
 import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
+import { RoleRepository } from '../../../repositories/RoleRepository'
+import { ExternalRoleService } from '../../../external/ExternalRoleService'
+import { RoleService } from '../../../services/role.service'
 
 export class AwaitingDescriptionState implements UserStateHandler {
   private userRepository: UserRepository
+  private roleService: RoleService
 
   constructor() {
     this.userRepository = new UserRepository()
+    this.roleService = new RoleService(
+      new RoleRepository(),
+      new ExternalRoleService()
+    )
   }
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id.toString()
@@ -26,17 +34,17 @@ export class AwaitingDescriptionState implements UserStateHandler {
 
     this.userRepository.update(userId, {
       description: message,
-      state: STATES.REGISTRATION.AWAITING_PHOTO
+      state: STATES.REGISTRATION.AWAITING_ROLES
     })
 
-    const userData = await this.userRepository.get(userId)
-    console.log(userData)
-    await ctx.reply(
-      MESSAGES[lang].registration.registered(
-        userData?.nickname,
-        userData?.city,
-        userData?.description
-      )
-    )
+    const roles = await this.roleService.getAllRoles()
+    const options = roles.map((role, index) => ({
+      text: `${index + 1}. ${role.name}`
+    }))
+
+    await ctx.replyWithPoll(MESSAGES[lang].registration.choseRole, options, {
+      is_anonymous: false,
+      allows_multiple_answers: false
+    })
   }
 }

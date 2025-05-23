@@ -24,7 +24,7 @@ class TGBot {
 
     this.registerCommands()
     this.registerMessageHandler()
-
+    this.registerPollHandler()
     const stateHandlers = createStateHandlers()
     this.services.stateSubscriber.registerHandlers(stateHandlers)
 
@@ -41,6 +41,11 @@ class TGBot {
   private registerMessageHandler() {
     this.bot.on('message', async (ctx: Context) => {
       await this.services.messageHandler.handle(ctx)
+    })
+  }
+  private registerPollHandler() {
+    this.bot.on('poll_answer', async (ctx: Context) => {
+      await this.services.pollHandler.handle(ctx)
     })
   }
 }

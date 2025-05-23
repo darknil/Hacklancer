@@ -28,7 +28,6 @@ export class UserRepository {
     }
 
     const merged = { ...current, ...update }
-    console.log('Merged data:', merged)
     await this.save(userIdString, merged)
   }
 

@@ -6,6 +6,7 @@ import { StateSubscriber } from '../handlers/StateSubscriber'
 import { UserRepository } from '../repositories/UserRepository'
 import { UserService } from '../services/user.service'
 import UserSessionRepository from '../repositories/UserSessionRepository'
+import { PollHandler } from '../handlers/PollHandler'
 
 export class ServiceConfig {
   static createServices(bot: Bot) {
@@ -15,21 +16,22 @@ export class ServiceConfig {
     const stateSubscriber = new StateSubscriber()
     const commandSubscriber = new CommandSubscriber(bot)
     const messageHandler = new MessageHandler(stateSubscriber, userService)
-
+    const pollHandler = new PollHandler(stateSubscriber, userService)
     return {
       userRepository,
       externalUserService,
       userService,
       stateSubscriber,
       commandSubscriber,
-      messageHandler
+      messageHandler,
+      pollHandler
     }
   }
   static subscribeTTLExpiration(userService: UserService) {
     UserSessionRepository.subscribeToSessionExpiration(async (userId) => {
       console.log(`Сессия пользователя ${userId} истекла.`)
 
-      const userData = await UserSessionRepository.getUserSession(userId)
+      const userData = await UserSessionRepository.getUserSession(userId) // TODO: FIX ME
       if (userData) {
         try {
           await userService.saveUser(userData)
