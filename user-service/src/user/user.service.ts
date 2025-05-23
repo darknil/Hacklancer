@@ -56,6 +56,8 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
     try {
+      console.log('user id : ', id);
+      console.log('updateUserDto : ', updateUserDto);
       const user = await this.getUserById(id);
       const updated = Object.assign(user, updateUserDto);
       return await this.userRepository.save(updated);

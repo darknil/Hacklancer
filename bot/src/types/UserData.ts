@@ -9,4 +9,5 @@ export interface UserData {
   city?: string
   description?: string
   photoURL?: string
+  roleId?: string
 }

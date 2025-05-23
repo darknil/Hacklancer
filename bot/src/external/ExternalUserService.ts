@@ -39,7 +39,13 @@ export class ExternalUserService {
 
   async updateUser(userData: UserData): Promise<void> {
     try {
-      await axios.put(`${this.baseUrl}/users/${userData.chatId}`, userData)
+      const { chatId, ...rest } = userData
+
+      const updateData = Object.fromEntries(
+        Object.entries(rest).filter(([_, value]) => value != null)
+      )
+      console.log('updateData :', updateData)
+      await axios.put(`${this.baseUrl}/users/${userData.chatId}`, updateData)
     } catch (err) {
       console.error('saving user error :', err)
       return

@@ -10,7 +10,13 @@ export class ExternalRoleService {
   async fetchUserRoles(): Promise<RoleData[] | null> {
     try {
       const res = await axios.get(`${this.baseUrl}/roles`)
-      return res.data
+
+      const rolesWithNumericId = res.data.map((role: any, index: number) => ({
+        id: role.id,
+        numericId: index + 1,
+        name: role.name
+      }))
+      return rolesWithNumericId
     } catch (err) {
       return null
     }

@@ -78,8 +78,13 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  roleId?: string;
+
+  @IsOptional()
+  @IsString()
   photoURL?: string;
 }
+
 export class ResponseUserDto {
   chatId: number;
   username?: string;

@@ -13,7 +13,7 @@ export class UserRepository {
     return await UserSessionRepository.getUserSession(userId)
   }
 
-  async save(userId: string, data: UserData, ttlSeconds = 300): Promise<void> {
+  async save(userId: string, data: UserData, ttlSeconds = 30): Promise<void> {
     await UserSessionRepository.saveUserSession(userId, data, ttlSeconds)
   }
   async update(

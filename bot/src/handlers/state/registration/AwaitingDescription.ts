@@ -38,8 +38,14 @@ export class AwaitingDescriptionState implements UserStateHandler {
     })
 
     const roles = await this.roleService.getAllRoles()
-    const options = roles.map((role, index) => ({
-      text: `${index + 1}. ${role.name}`
+    // Сортируем роли по numericId для правильного порядка
+    const sortedRoles = roles.sort((a, b) => {
+      const aId = a.numericId || 0
+      const bId = b.numericId || 0
+      return aId - bId
+    })
+    const options = sortedRoles.map((role) => ({
+      text: `${role.numericId || 0}. ${role.name}`
     }))
 
     await ctx.replyWithPoll(MESSAGES[lang].registration.choseRole, options, {

@@ -28,20 +28,14 @@ export class ServiceConfig {
     }
   }
   static subscribeTTLExpiration(userService: UserService) {
-    UserSessionRepository.subscribeToSessionExpiration(async (userId) => {
-      console.log(`Сессия пользователя ${userId} истекла.`)
-
-      const userData = await UserSessionRepository.getUserSession(userId) // TODO: FIX ME
-      if (userData) {
-        try {
+    UserSessionRepository.subscribeToSessionExpiration(
+      async (userId, userData) => {
+        if (userData) {
           await userService.saveUser(userData)
-          console.log(`Пользователь ${userId} успешно сохранён.`)
-        } catch (err) {
-          console.error(`Ошибка при сохранении пользователя ${userId}:`, err)
+        } else {
+          console.warn(`Нет данных для пользователя ${userId}`)
         }
-      } else {
-        console.warn(`Сессия для пользователя ${userId} не найдена.`)
       }
-    })
+    )
   }
 }

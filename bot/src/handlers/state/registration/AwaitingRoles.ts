@@ -21,12 +21,27 @@ export class AwaitingRolesState implements UserStateHandler {
 
   async handle(ctx: Context): Promise<void> {
     if (!ctx.pollAnswer?.user?.id) return
+    const userId = ctx.pollAnswer?.user?.id
+    const userLang = ctx.pollAnswer?.user?.language_code
+
+    const lang = userLang === 'ru' ? 'ru' : 'en'
     const roles = await this.roleService.getAllRoles()
-    const selectedRoles = ctx.pollAnswer.option_ids.map((i) => roles[i])
+    const sortedRoles = roles.sort((a, b) => {
+      const aId = a.numericId || 0
+      const bId = b.numericId || 0
+      return aId - bId
+    })
+    const selectedRoles = ctx.pollAnswer.option_ids.map((i) => sortedRoles[i])
     const roleNames = selectedRoles.map((role) => role.name)
+
+    this.userRepository.update(userId, {
+      roleId: selectedRoles[0].id,
+      state: STATES.REGISTRATION.AWAITING_CITY
+    })
+    console.log(selectedRoles[0])
     await ctx.api.sendMessage(
       ctx.pollAnswer.user.id,
-      `Вы выбрали следующие роли: ${roleNames.join(', ')}`
+      MESSAGES[lang].registration.sendPhoto
     )
   }
 }
