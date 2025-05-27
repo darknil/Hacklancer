@@ -9,8 +9,9 @@ export class UserRepository {
   constructor() {
     this.SESSION_TTL = parseInt(process.env.SESSION_TTL || '60')
   }
-  async get(userId: string): Promise<UserData | null> {
-    return await UserSessionRepository.getUserSession(userId)
+  async get(userId: string | number): Promise<UserData | null> {
+    const userIdString = userId.toString()
+    return await UserSessionRepository.getUserSession(userIdString)
   }
 
   async save(userId: string, data: UserData, ttlSeconds = 30): Promise<void> {

@@ -4,6 +4,7 @@ import UserSessionRepository from './src/repositories/UserSessionRepository'
 import { createCommandHandlers } from './src/handlers/createCommandHandlers'
 import { createStateHandlers } from './src/handlers/createStateHandlers'
 import { ServiceConfig } from './src/config/serviceConfig'
+import { commands } from './src/constants/commands'
 
 dotenv.config()
 
@@ -35,6 +36,7 @@ class TGBot {
   }
 
   private registerCommands() {
+    this.bot.api.setMyCommands(commands)
     const handlers = createCommandHandlers()
     this.services.commandSubscriber.subscribe(handlers)
   }

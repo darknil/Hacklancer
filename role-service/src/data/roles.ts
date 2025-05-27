@@ -7,6 +7,6 @@ export const roles = [
   'QA Engineer',
   'Project Manager',
   'Mobile Developer',
-  'ML Engineer',
   'Game Developer',
+  'Product owner',
 ];

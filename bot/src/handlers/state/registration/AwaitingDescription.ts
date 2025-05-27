@@ -6,6 +6,7 @@ import { STATES } from '../../../constants/states'
 import { RoleRepository } from '../../../repositories/RoleRepository'
 import { ExternalRoleService } from '../../../external/ExternalRoleService'
 import { RoleService } from '../../../services/role.service'
+import { KEYBOARDS } from '../../../constants/KeyBoards'
 
 export class AwaitingDescriptionState implements UserStateHandler {
   private userRepository: UserRepository
@@ -32,25 +33,27 @@ export class AwaitingDescriptionState implements UserStateHandler {
       return
     }
 
+    if (message.length > 300) {
+      await ctx.reply(MESSAGES[lang].registration.descriptionTooLong)
+      return
+    }
+
     this.userRepository.update(userId, {
       description: message,
-      state: STATES.REGISTRATION.AWAITING_ROLES
+      state: STATES.REGISTRATION.AWAITING_PHOTO
     })
-
-    const roles = await this.roleService.getAllRoles()
-    // Сортируем роли по numericId для правильного порядка
-    const sortedRoles = roles.sort((a, b) => {
-      const aId = a.numericId || 0
-      const bId = b.numericId || 0
-      return aId - bId
-    })
-    const options = sortedRoles.map((role) => ({
-      text: `${role.numericId || 0}. ${role.name}`
-    }))
-
-    await ctx.replyWithPoll(MESSAGES[lang].registration.choseRole, options, {
-      is_anonymous: false,
-      allows_multiple_answers: false
-    })
+    const userData = await this.userRepository.get(userId)
+    console.log('userData :', userData)
+    if (userData?.photoURL) {
+      await ctx.reply(MESSAGES[lang].registration.previousPhoto, {
+        reply_markup: {
+          keyboard: KEYBOARDS[lang].registration.usePhoto.keyboard,
+          resize_keyboard: true,
+          one_time_keyboard: true
+        }
+      })
+      return
+    }
+    await ctx.reply(MESSAGES[lang].registration.sendPhoto)
   }
 }

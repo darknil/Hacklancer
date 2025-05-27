@@ -32,16 +32,14 @@ export class AwaitingRolesState implements UserStateHandler {
       return aId - bId
     })
     const selectedRoles = ctx.pollAnswer.option_ids.map((i) => sortedRoles[i])
-    const roleNames = selectedRoles.map((role) => role.name)
 
     this.userRepository.update(userId, {
       roleId: selectedRoles[0].id,
-      state: STATES.REGISTRATION.AWAITING_CITY
+      state: STATES.REGISTRATION.AWAITING_DESCRIPTION
     })
-    console.log(selectedRoles[0])
     await ctx.api.sendMessage(
       ctx.pollAnswer.user.id,
-      MESSAGES[lang].registration.sendPhoto
+      MESSAGES[lang].registration.enterDescription
     )
   }
 }
