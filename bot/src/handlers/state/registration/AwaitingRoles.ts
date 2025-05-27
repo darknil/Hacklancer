@@ -7,7 +7,7 @@ import { RoleService } from '../../../services/role.service'
 import { RoleRepository } from '../../../repositories/RoleRepository'
 import { ExternalRoleService } from '../../../external/ExternalRoleService'
 
-export class AwaitingCityState implements UserStateHandler {
+export class AwaitingRolesState implements UserStateHandler {
   private userRepository: UserRepository
   private roleService: RoleService
 
@@ -20,37 +20,26 @@ export class AwaitingCityState implements UserStateHandler {
   }
 
   async handle(ctx: Context): Promise<void> {
-    const userId = ctx.from?.id.toString()
-    if (!userId) return
-
-    const userLang = ctx.from?.language_code
+    if (!ctx.pollAnswer?.user?.id) return
+    const userId = ctx.pollAnswer?.user?.id
+    const userLang = ctx.pollAnswer?.user?.language_code
 
     const lang = userLang === 'ru' ? 'ru' : 'en'
-
-    const message = ctx.message?.text
-    if (typeof message !== 'string') {
-      await ctx.reply(MESSAGES[lang].registration.enterCity)
-      return
-    }
-
-    // ================ send poll ================
     const roles = await this.roleService.getAllRoles()
     const sortedRoles = roles.sort((a, b) => {
       const aId = a.numericId || 0
       const bId = b.numericId || 0
       return aId - bId
     })
-    const options = sortedRoles.map((role) => ({
-      text: `${role.numericId || 0}. ${role.name}`
-    }))
+    const selectedRoles = ctx.pollAnswer.option_ids.map((i) => sortedRoles[i])
+
     this.userRepository.update(userId, {
-      city: message,
-      state: STATES.REGISTRATION.AWAITING_ROLES
+      roleId: selectedRoles[0].id,
+      state: STATES.REGISTRATION.AWAITING_DESCRIPTION
     })
-    await ctx.replyWithPoll(MESSAGES[lang].registration.choseRole, options, {
-      is_anonymous: false,
-      allows_multiple_answers: false
-    })
-    // ================ send poll ================
+    await ctx.api.sendMessage(
+      ctx.pollAnswer.user.id,
+      MESSAGES[lang].registration.enterDescription
+    )
   }
 }

@@ -14,8 +14,8 @@ export class RoleImportService implements OnModuleInit {
 
   async onModuleInit() {
     console.log('[RoleImportService] Проверка и импорт ролей...');
-    for (const roleName of this.roles) {
-      await this.roleService.createRole(roleName);
+    for (const role of roles) {
+      await this.roleService.createRole(role);
     }
     console.log('[RoleImportService] Роли импортированы.');
   }

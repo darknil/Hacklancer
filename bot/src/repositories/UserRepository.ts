@@ -9,11 +9,12 @@ export class UserRepository {
   constructor() {
     this.SESSION_TTL = parseInt(process.env.SESSION_TTL || '60')
   }
-  async get(userId: string): Promise<UserData | null> {
-    return await UserSessionRepository.getUserSession(userId)
+  async get(userId: string | number): Promise<UserData | null> {
+    const userIdString = userId.toString()
+    return await UserSessionRepository.getUserSession(userIdString)
   }
 
-  async save(userId: string, data: UserData, ttlSeconds = 300): Promise<void> {
+  async save(userId: string, data: UserData, ttlSeconds = 30): Promise<void> {
     await UserSessionRepository.saveUserSession(userId, data, ttlSeconds)
   }
   async update(
@@ -28,7 +29,6 @@ export class UserRepository {
     }
 
     const merged = { ...current, ...update }
-    console.log('Merged data:', merged)
     await this.save(userIdString, merged)
   }
 

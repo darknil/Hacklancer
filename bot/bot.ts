@@ -4,6 +4,7 @@ import UserSessionRepository from './src/repositories/UserSessionRepository'
 import { createCommandHandlers } from './src/handlers/createCommandHandlers'
 import { createStateHandlers } from './src/handlers/createStateHandlers'
 import { ServiceConfig } from './src/config/serviceConfig'
+import { commands } from './src/constants/commands'
 
 dotenv.config()
 
@@ -24,7 +25,7 @@ class TGBot {
 
     this.registerCommands()
     this.registerMessageHandler()
-
+    this.registerPollHandler()
     const stateHandlers = createStateHandlers()
     this.services.stateSubscriber.registerHandlers(stateHandlers)
 
@@ -35,12 +36,18 @@ class TGBot {
   }
 
   private registerCommands() {
+    this.bot.api.setMyCommands(commands)
     const handlers = createCommandHandlers()
     this.services.commandSubscriber.subscribe(handlers)
   }
   private registerMessageHandler() {
     this.bot.on('message', async (ctx: Context) => {
       await this.services.messageHandler.handle(ctx)
+    })
+  }
+  private registerPollHandler() {
+    this.bot.on('poll_answer', async (ctx: Context) => {
+      await this.services.pollHandler.handle(ctx)
     })
   }
 }

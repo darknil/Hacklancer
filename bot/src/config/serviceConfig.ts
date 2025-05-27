@@ -6,6 +6,7 @@ import { StateSubscriber } from '../handlers/StateSubscriber'
 import { UserRepository } from '../repositories/UserRepository'
 import { UserService } from '../services/user.service'
 import UserSessionRepository from '../repositories/UserSessionRepository'
+import { PollHandler } from '../handlers/PollHandler'
 
 export class ServiceConfig {
   static createServices(bot: Bot) {
@@ -15,31 +16,26 @@ export class ServiceConfig {
     const stateSubscriber = new StateSubscriber()
     const commandSubscriber = new CommandSubscriber(bot)
     const messageHandler = new MessageHandler(stateSubscriber, userService)
-
+    const pollHandler = new PollHandler(stateSubscriber, userService)
     return {
       userRepository,
       externalUserService,
       userService,
       stateSubscriber,
       commandSubscriber,
-      messageHandler
+      messageHandler,
+      pollHandler
     }
   }
   static subscribeTTLExpiration(userService: UserService) {
-    UserSessionRepository.subscribeToSessionExpiration(async (userId) => {
-      console.log(`Сессия пользователя ${userId} истекла.`)
-
-      const userData = await UserSessionRepository.getUserSession(userId)
-      if (userData) {
-        try {
+    UserSessionRepository.subscribeToSessionExpiration(
+      async (userId, userData) => {
+        if (userData) {
           await userService.saveUser(userData)
-          console.log(`Пользователь ${userId} успешно сохранён.`)
-        } catch (err) {
-          console.error(`Ошибка при сохранении пользователя ${userId}:`, err)
+        } else {
+          console.warn(`Нет данных для пользователя ${userId}`)
         }
-      } else {
-        console.warn(`Сессия для пользователя ${userId} не найдена.`)
       }
-    })
+    )
   }
 }
