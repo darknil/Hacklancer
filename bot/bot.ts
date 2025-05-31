@@ -1,21 +1,55 @@
-import { Bot } from 'grammy'
+import { Bot, Context } from 'grammy'
+import dotenv from 'dotenv'
+import UserSessionRepository from './src/repositories/UserSessionRepository'
+import { createCommandHandlers } from './src/handlers/createCommandHandlers'
+import { createStateHandlers } from './src/handlers/createStateHandlers'
+import { ServiceConfig } from './src/config/serviceConfig'
+import { commands } from './src/constants/commands'
 
-// Create an instance of the `Bot` class and pass your bot token to it.
-const bot = new Bot('7539495703:AAEyD42SBPyJxeIbVVzmgOf9q_MKu92QBPE') // <-- put your bot token between the ""
+dotenv.config()
 
-// You can now register listeners on your bot object `bot`.
-// grammY will call the listeners when users send messages to your bot.
+class TGBot {
+  private bot: Bot
+  private services: ReturnType<typeof ServiceConfig.createServices>
 
-// Handle the /start command.
-bot.command('start', (ctx) => ctx.reply('Welcome! Up and running.'))
-// Handle other messages.
-bot.on('message', (ctx) => ctx.reply('Got another message!'))
+  constructor() {
+    const token = process.env.BOT_TOKEN
 
-// Now that you specified how to handle messages, you can start your bot.
-// This will connect to the Telegram servers and wait for messages.
+    if (!token) {
+      throw new Error('BOT_TOKEN is not defined in environment variables.')
+    }
 
-// Start the bot.
-bot.start()
-console.log('=========================')
-console.log('Bot is running: ')
-console.log('=========================')
+    this.bot = new Bot(token)
+    this.services = ServiceConfig.createServices(this.bot)
+    ServiceConfig.subscribeTTLExpiration(this.services.userService)
+
+    this.registerCommands()
+    this.registerMessageHandler()
+    this.registerPollHandler()
+    const stateHandlers = createStateHandlers()
+    this.services.stateSubscriber.registerHandlers(stateHandlers)
+
+    this.bot.start()
+    console.log('=========================')
+    console.log('Bot is running:@Hacklancer_bot')
+    console.log('=========================')
+  }
+
+  private registerCommands() {
+    this.bot.api.setMyCommands(commands)
+    const handlers = createCommandHandlers()
+    this.services.commandSubscriber.subscribe(handlers)
+  }
+  private registerMessageHandler() {
+    this.bot.on('message', async (ctx: Context) => {
+      await this.services.messageHandler.handle(ctx)
+    })
+  }
+  private registerPollHandler() {
+    this.bot.on('poll_answer', async (ctx: Context) => {
+      await this.services.pollHandler.handle(ctx)
+    })
+  }
+}
+
+const myBot = new TGBot()
