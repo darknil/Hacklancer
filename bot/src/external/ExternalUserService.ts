@@ -10,7 +10,7 @@ export class ExternalUserService {
   }
   async fetchUserProfile(chatId: number): Promise<UserData | null> {
     try {
-      const res = await axios.get(`${this.baseUrl}/users/${chatId}`)
+      const res = await axios.get(`${this.baseUrl}/users?chatId=${chatId}`)
       const validated = UserDataSchema.safeParse(res.data) as {
         success: boolean
         data: UserData
@@ -48,11 +48,15 @@ export class ExternalUserService {
   async updateUser(userData: UserData): Promise<void> {
     try {
       const { chatId, ...rest } = userData
-
+      console.log('chatId :', chatId)
+      console.log('updateData :', rest)
       const updateData = Object.fromEntries(
         Object.entries(rest).filter(([_, value]) => value != null)
       )
-      await axios.put(`${this.baseUrl}/users/${userData.chatId}`, updateData)
+      await axios.put(
+        `${this.baseUrl}/users?chatId=${userData.chatId}`,
+        updateData
+      )
     } catch (err) {
       console.error('saving user error :', err)
       return

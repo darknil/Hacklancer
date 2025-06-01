@@ -1,8 +1,14 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('users')
 export class UserEntity {
-  @PrimaryColumn({ type: 'bigint' })
+  @PrimaryColumn({ type: 'int' })
   chatId: number;
 
   @Column({ type: 'varchar', nullable: true })
@@ -34,4 +40,10 @@ export class UserEntity {
 
   @Column({ type: 'uuid', nullable: true })
   roleId?: string;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
