@@ -43,7 +43,6 @@ export class AwaitingDescriptionState implements UserStateHandler {
       state: STATES.REGISTRATION.AWAITING_PHOTO
     })
     const userData = await this.userRepository.get(userId)
-    console.log('userData :', userData)
     if (userData?.photoURL) {
       await ctx.reply(MESSAGES[lang].registration.previousPhoto, {
         reply_markup: {

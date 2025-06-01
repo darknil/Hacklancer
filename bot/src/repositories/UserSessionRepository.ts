@@ -44,7 +44,6 @@ class UserSessionRepository {
           `user_session_backup:${userId}`
         )
         const parsedData = backupData ? JSON.parse(backupData) : undefined
-
         callback(userId, parsedData)
       }
     })

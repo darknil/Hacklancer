@@ -15,10 +15,8 @@ export class StateSubscriber {
 
     const handler = this.handlers[state as keyof UserStateHandlers]
     if (handler) {
-      // Если обработчик найден, вызываем его
       await handler.handle(ctx)
     } else {
-      // Если обработчик не найден, отправляем сообщение о неподдерживаемом состоянии
       await ctx.reply('нет обработчика')
     }
   }

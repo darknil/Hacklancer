@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const UserDataSchema = z.object({
-  chatId: z.string().transform((val) => Number(val)),
+  chatId: z.number(),
   username: z.string().optional(),
   first_name: z.string().optional(),
   last_name: z.string().optional(),

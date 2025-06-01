@@ -26,6 +26,8 @@ export class AwaitingAprovalState implements UserStateHandler {
       return
     }
     if (message === KEYBOARDS[lang].registration.aproval.yes) {
+      const userData = await this.userRepository.get(userId)
+
       await ctx.api.sendAnimation(userId, IMAGES_URL.main, {
         caption: MESSAGES[lang].main,
         reply_markup: {

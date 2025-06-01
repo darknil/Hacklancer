@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import {
   CreateUserDto,
@@ -13,7 +13,6 @@ import {
 } from '../dto/user.dtos';
 import { STATES } from '../constants/states';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -23,7 +22,21 @@ export class UserService {
     private readonly httpService: HttpService,
   ) {}
 
-  async getUserById(id: string): Promise<ResponseUserDto> {
+  async getRecentUsers(): Promise<number[]> {
+    const users = await this.userRepository.find({
+      where: {
+        photoURL: Not(IsNull()),
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+    });
+    return users.map((user) => user.chatId);
+  }
+  async getUsersById(chatIds: number[]): Promise<UserEntity[] | null> {
+    return this.userRepository.find({ where: { chatId: In(chatIds) } });
+  }
+  async getUserById(id: number): Promise<ResponseUserDto> {
     const user = await this.userRepository.findOne({
       where: { chatId: Number(id) },
     });
@@ -38,7 +51,7 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
       const existedUser = await this.userRepository.findOne({
-        where: { chatId: createUserDto.chatId },
+        where: { chatId: Number(createUserDto.chatId) },
       });
       if (existedUser) {
         return existedUser;
@@ -52,7 +65,7 @@ export class UserService {
   }
 
   async updateUser(
-    id: string,
+    id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
     try {

@@ -6,9 +6,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // удаляет лишние поля
-      forbidNonWhitelisted: true, // бросает ошибку на неизвестные поля
-      transform: true, // автоматически преобразует типы (например, string -> number)
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
   await app.listen(3000);
