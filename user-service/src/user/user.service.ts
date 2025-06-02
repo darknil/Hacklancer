@@ -13,6 +13,7 @@ import {
 } from '../dto/user.dtos';
 import { STATES } from '../constants/states';
 import { HttpService } from '@nestjs/axios';
+import { MessageBrokerService } from 'src/message-broker/message-broker.service';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,7 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly httpService: HttpService,
+    private readonly broker: MessageBrokerService,
   ) {}
 
   async getRecentUsers(): Promise<number[]> {
@@ -58,6 +60,7 @@ export class UserService {
       }
       createUserDto.state = STATES.REGISTRATION.WAITING_FOR_NAME;
       const user = this.userRepository.create(createUserDto);
+      this.broker.emit('user.created', { userId: createUserDto.chatId });
       return this.userRepository.save(user);
     } catch (error) {
       throw new InternalServerErrorException('Creating user error');
