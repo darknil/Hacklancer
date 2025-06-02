@@ -5,6 +5,8 @@ import { UserRepository } from '../../repositories/UserRepository'
 import { STATES } from '../../constants/states'
 import { UserService } from '../../services/user.service'
 import { ExternalUserService } from '../../external/ExternalUserService'
+import { IMAGES_URL } from '../../constants/images'
+import { KEYBOARDS } from '../../constants/KeyBoards'
 
 export class StartCommand implements BotCommand {
   private userRepository: UserRepository
@@ -43,5 +45,14 @@ export class StartCommand implements BotCommand {
       await ctx.reply(MESSAGES[lang].registration.welcome)
       await ctx.reply(MESSAGES[lang].registration.enterName)
     }
+
+    await ctx.api.sendAnimation(userData.chatId, IMAGES_URL.main, {
+      caption: MESSAGES[lang].main,
+      reply_markup: {
+        keyboard: KEYBOARDS.main.keyboard,
+        resize_keyboard: true,
+        one_time_keyboard: true
+      }
+    })
   }
 }

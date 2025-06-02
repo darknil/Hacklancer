@@ -10,4 +10,5 @@ export interface UserData {
   description?: string
   photoURL?: string
   roleId?: string
+  recommendationArray?: number[]
 }

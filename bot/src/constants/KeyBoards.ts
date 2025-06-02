@@ -40,6 +40,9 @@ export const KEYBOARDS = {
     }
   },
   main: {
-    keyboard: [[{ text: '1.' }, { text: '2.' }, { text: '3.' }, { text: '4' }]]
+    matching: '1',
+    myProfile: '2',
+    hackathons: '3',
+    keyboard: [[{ text: '1' }, { text: '2' }, { text: '3' }]]
   }
 }
