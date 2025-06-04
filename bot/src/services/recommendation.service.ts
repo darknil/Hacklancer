@@ -1,17 +1,17 @@
 import { ExternalRecommendationService } from '../external/ExternalRecommendationService'
 import { ExternalUserService } from '../external/ExternalUserService'
-import { RoleRepository } from '../repositories/RoleRepository'
 import { UserProfileRepository } from '../repositories/UserProfileRepository'
 import { UserRepository } from '../repositories/UserRepository'
 import { ProfileData } from '../types/ProfileData'
 import { UserData } from '../types/UserData'
+import { RoleService } from './role.service'
 
 export class RecommendationService {
   constructor(
     private externalRecommendationService: ExternalRecommendationService,
     private externalUserService: ExternalUserService,
     private userProfileRepository: UserProfileRepository,
-    private roleRepository: RoleRepository,
+    private roleService: RoleService,
     private userRepository: UserRepository
   ) {}
   async initializeUserSession(chatId: number): Promise<void> {
@@ -27,27 +27,35 @@ export class RecommendationService {
     const userDataArray: UserData[] = users.filter((u): u is UserData => !!u)
 
     console.log(
-      `[${new Date().toISOString()}] initializing user session for ${chatId}`
+      `[${new Date().toISOString()}] initializing session for user :${chatId}`
     )
     await this.userRepository.update(chatId, {
       recommendationArray: ids
     })
 
-    userDataArray.forEach(async (user) => {
-      try {
-        const role = await this.roleRepository.get(user.roleId ?? '')
-        const profileData: ProfileData = {
-          nickname: user.nickname ?? '',
-          city: user.city ?? '',
-          description: user.description ?? '',
-          photoURL: user.photoURL ?? '',
-          rolename: role?.name ?? ''
+    await Promise.all(
+      userDataArray.map(async (user) => {
+        const existedProfile = await this.userProfileRepository.get(user.chatId)
+        // if (existedProfile) return
+        try {
+          const role = await this.roleService.findRole(user.roleId ?? '')
+          console.log(
+            `[${new Date().toISOString()}] user role id:`,
+            user.roleId
+          )
+          const profileData: ProfileData = {
+            nickname: user.nickname ?? '',
+            city: user.city ?? '',
+            description: user.description ?? '',
+            photoURL: user.photoURL ?? '',
+            rolename: role?.name ?? ''
+          }
+          await this.userProfileRepository.save(user.chatId, profileData)
+        } catch (err) {
+          console.error(`Failed to save profile for user ${user.chatId}:`, err)
         }
-        await this.userProfileRepository.save(user.chatId, profileData)
-      } catch (err) {
-        console.error(`Failed to save profile for user ${user.chatId}:`, err)
-      }
-    })
+      })
+    )
   }
 
   async getNextProfile(chatId: number): Promise<ProfileData | null> {

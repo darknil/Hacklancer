@@ -49,7 +49,7 @@ export class StateHandlerFactory {
       this.externalRecommendationService,
       this.externalUserService,
       this.userProfileRepository,
-      this.roleRepository,
+      this.roleService,
       this.userRepository
     )
   }

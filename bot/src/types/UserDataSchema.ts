@@ -11,6 +11,7 @@ export const UserDataSchema = z
     nickname: z.string().nullable().optional(),
     city: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
-    photoURL: z.string().nullable().optional()
+    photoURL: z.string().nullable().optional(),
+    roleId: z.string().nullable().optional()
   })
   .strip()

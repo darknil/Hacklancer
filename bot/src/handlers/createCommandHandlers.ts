@@ -1,9 +1,11 @@
 import { ExternalRecommendationService } from '../external/ExternalRecommendationService'
+import { ExternalRoleService } from '../external/ExternalRoleService'
 import { ExternalUserService } from '../external/ExternalUserService'
 import { RoleRepository } from '../repositories/RoleRepository'
 import { UserProfileRepository } from '../repositories/UserProfileRepository'
 import { UserRepository } from '../repositories/UserRepository'
 import { RecommendationService } from '../services/recommendation.service'
+import { RoleService } from '../services/role.service'
 import { UserService } from '../services/user.service'
 import { BotCommandHandlers } from '../types/BotCommandHandlers'
 import { StartCommand } from './commands/StartCommand'
@@ -16,6 +18,8 @@ export class CommandHandlerFactory {
   private userProfileRepository: UserProfileRepository
   private roleRepository: RoleRepository
   private recommendationService: RecommendationService
+  private roleService: RoleService
+  private externalRoleService: ExternalRoleService
 
   constructor() {
     this.userRepository = new UserRepository()
@@ -27,11 +31,16 @@ export class CommandHandlerFactory {
     this.externalRecommendationService = new ExternalRecommendationService()
     this.userProfileRepository = new UserProfileRepository()
     this.roleRepository = new RoleRepository()
+    this.externalRoleService = new ExternalRoleService()
+    this.roleService = new RoleService(
+      this.roleRepository,
+      this.externalRoleService
+    )
     this.recommendationService = new RecommendationService(
       this.externalRecommendationService,
       this.externalUserService,
       this.userProfileRepository,
-      this.roleRepository,
+      this.roleService,
       this.userRepository
     )
   }
