@@ -5,11 +5,9 @@ import { RoleController } from './role.controller';
 import { Role } from './entities/role.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Role]), // <-- ВАЖНО!
-  ],
+  imports: [TypeOrmModule.forFeature([Role])],
   providers: [RoleService],
   controllers: [RoleController],
-  exports: [RoleService], // если нужно в других модулях
+  exports: [RoleService],
 })
 export class RoleModule {}
