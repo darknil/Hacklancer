@@ -18,6 +18,7 @@ export class RecommendationService {
     const ids = await this.externalRecommendationService.fetchRecommendations(
       chatId
     )
+    console.log(`[${new Date().toISOString()}] fetching recommendations :`, ids)
     if (!ids.length) return
 
     const users = await Promise.all(

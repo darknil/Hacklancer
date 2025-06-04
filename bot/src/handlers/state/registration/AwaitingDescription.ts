@@ -26,6 +26,15 @@ export class AwaitingDescriptionState implements UserStateHandler {
       return
     }
 
+    const trimmed = message.trim()
+    const isTooLong = trimmed.length > 300
+    const containsHtml = /<[^>]+>/.test(trimmed)
+
+    if (isTooLong || containsHtml) {
+      await ctx.reply(MESSAGES[lang].registration.invalidDescription)
+      return
+    }
+
     this.userRepository.update(userId, {
       description: message,
       state: STATES.REGISTRATION.AWAITING_PHOTO

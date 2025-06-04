@@ -1,20 +1,18 @@
 import { Context } from 'grammy'
 import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
 import { UserRepository } from '../../../repositories/UserRepository'
-import { STATES } from '../../../constants/states'
 import { MESSAGES } from '../../../constants/messages'
 import { KEYBOARDS } from '../../../constants/KeyBoards'
 import { IMAGES_URL } from '../../../constants/images'
-import { RecommendationService } from '../../../services/recommendation.service'
-import { UserService } from '../../../services/user.service'
 import { RoleService } from '../../../services/role.service'
+import { STATES } from '../../../constants/states'
+import { UserService } from '../../../services/user.service'
 
-export class MainAwaitingActionState implements UserStateHandler {
+export class ProfileAwaitingActionState implements UserStateHandler {
   constructor(
     private userRepository: UserRepository,
-    private recommendationService: RecommendationService,
-    private userService: UserService,
-    private roleService: RoleService
+    private roleService: RoleService,
+    private userService: UserService
   ) {}
 
   async handle(ctx: Context): Promise<void> {
@@ -37,29 +35,44 @@ export class MainAwaitingActionState implements UserStateHandler {
       })
       return
     }
+    const user = await this.userService.find(userId)
+    if (!user) return
 
     switch (message) {
-      case KEYBOARDS.main.matching:
-        this.userRepository.update(userId, {
-          state: STATES.MATCHING.VIEW_PROFILE
-        })
-        this.sendMatchProfile(userId, lang, ctx)
+      case KEYBOARDS.profile.awaitingAction.fillOutAgain:
+        await this.userRepository.setState(
+          user.chatId,
+          STATES.REGISTRATION.AWAITING_NAME
+        )
 
+        await ctx.reply(MESSAGES[lang].registration.enterName)
         break
-      case KEYBOARDS.main.myProfile:
-        this.userRepository.update(userId, {
-          state: STATES.PROFILE.AWAITING_ACTION
-        })
-        await this.sendProfile(userId, lang, ctx)
+
+      case KEYBOARDS.profile.awaitingAction.changeDescription:
+        await this.userRepository.setState(
+          user.chatId,
+          STATES.PROFILE.EDIT_DESCRIPTION
+        )
+        await ctx.reply('.')
         break
-      case KEYBOARDS.main.hackathons:
-        await ctx.reply('hackathons coming soon.')
+
+      case KEYBOARDS.profile.awaitingAction.changePhoto:
+        await this.userRepository.setState(
+          user.chatId,
+          STATES.PROFILE.EDIT_PHOTO
+        )
+        await ctx.reply('change photo.')
         break
-      default:
+
+      case KEYBOARDS.profile.awaitingAction.home:
         this.userRepository.update(userId, {
           state: STATES.MAIN.AWAITING_ACTION
         })
         await this.sendHomePage(userId, lang, ctx)
+        break
+
+      default:
+        await this.sendProfile(userId, lang, ctx)
         break
     }
   }
@@ -74,26 +87,7 @@ export class MainAwaitingActionState implements UserStateHandler {
       }
     })
   }
-  async sendMatchProfile(userId: number, lang: 'ru' | 'en', ctx: Context) {
-    const ProfileData = await this.recommendationService.getNextProfile(userId)
-    const caption = MESSAGES[lang].profile(
-      ProfileData?.nickname ?? '',
-      ProfileData?.city ?? '',
-      ProfileData?.description ?? '',
-      ProfileData?.rolename ?? ''
-    )
-    if (ProfileData?.photoURL) {
-      await ctx.api.sendPhoto(userId, ProfileData?.photoURL, {
-        caption,
-        parse_mode: 'HTML',
-        reply_markup: {
-          keyboard: KEYBOARDS.swiping.keyboard,
-          resize_keyboard: true,
-          one_time_keyboard: true
-        }
-      })
-    }
-  }
+
   private async sendProfile(userId: number, lang: 'ru' | 'en', ctx: Context) {
     const userData = await this.userService.find(userId)
     if (!userData) return
@@ -104,18 +98,26 @@ export class MainAwaitingActionState implements UserStateHandler {
       userData?.description ?? '',
       userRole?.name ?? ''
     )
-
+    await ctx.reply(MESSAGES[lang].registration.aproval)
     if (userData?.photoURL) {
       await ctx.api.sendPhoto(userId, userData?.photoURL, {
         caption,
         parse_mode: 'HTML',
         reply_markup: {
-          keyboard: KEYBOARDS.profile.awaitingAction.keyboard,
+          keyboard: KEYBOARDS[lang].registration.aproval.keyboard,
+          resize_keyboard: true,
+          one_time_keyboard: true
+        }
+      })
+    } else {
+      await ctx.reply(caption, {
+        parse_mode: 'HTML',
+        reply_markup: {
+          keyboard: KEYBOARDS[lang].registration.aproval.keyboard,
           resize_keyboard: true,
           one_time_keyboard: true
         }
       })
     }
-    await ctx.reply(MESSAGES[lang].profileOptions)
   }
 }

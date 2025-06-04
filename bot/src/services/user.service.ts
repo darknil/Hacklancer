@@ -23,6 +23,7 @@ export class UserService {
       }
 
       const newUser = await this.externalUserService.createUser(userData)
+      console.log('newUser :', newUser)
       if (newUser) {
         await this.userRepository.save(String(userData.chatId), newUser)
         return newUser
@@ -37,6 +38,16 @@ export class UserService {
         }`
       )
     }
+  }
+  async find(chatId: number): Promise<UserData | null> {
+    const cashedData = await this.userRepository.get(chatId)
+    if (cashedData) return cashedData
+    const externalUser = await this.externalUserService.fetchUserProfile(chatId)
+    if (externalUser) {
+      await this.userRepository.save(chatId, externalUser)
+      return externalUser
+    }
+    return null
   }
   async saveUser(user: UserData) {
     await this.externalUserService.updateUser(user)

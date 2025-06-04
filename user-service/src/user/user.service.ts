@@ -33,27 +33,30 @@ export class UserService {
         updatedAt: 'DESC',
       },
     });
-    return users.map((user) => user.chatId);
+    return users.map((user) => Number(user.chatId));
   }
   async getUsersById(chatIds: number[]): Promise<UserEntity[] | null> {
     return this.userRepository.find({ where: { chatId: In(chatIds) } });
   }
   async getUserById(id: number): Promise<ResponseUserDto> {
     const user = await this.userRepository.findOne({
-      where: { chatId: Number(id) },
+      where: { chatId: id.toString() },
     });
 
     if (!user) {
       throw new NotFoundException(`User with chatId=${id} not found`);
     }
 
-    return new ResponseUserDto({ ...user });
+    return new ResponseUserDto({
+      ...user,
+      chatId: Number(user.chatId),
+    });
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
       const existedUser = await this.userRepository.findOne({
-        where: { chatId: Number(createUserDto.chatId) },
+        where: { chatId: createUserDto.chatId },
       });
       if (existedUser) {
         return existedUser;
@@ -72,9 +75,14 @@ export class UserService {
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
     try {
-      console.log('user id : ', id);
-      console.log('updateUserDto : ', updateUserDto);
-      const user = await this.getUserById(id);
+      const user = await this.userRepository.findOne({
+        where: { chatId: id.toString() },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with chatId=${id} not found`);
+      }
+
       const updated = Object.assign(user, updateUserDto);
       return await this.userRepository.save(updated);
     } catch (error) {

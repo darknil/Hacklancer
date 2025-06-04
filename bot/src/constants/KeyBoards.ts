@@ -54,5 +54,14 @@ export const KEYBOARDS = {
       [{ text: '❤️' }, { text: '➡️' }],
       [{ text: '⚙️' }, { text: '🏠' }]
     ]
+  },
+  profile: {
+    awaitingAction: {
+      fillOutAgain: '1',
+      changePhoto: '2',
+      changeDescription: '3',
+      home: '🏠',
+      keyboard: [[{ text: '1' }, { text: '2' }, { text: '3' }, { text: '🏠' }]]
+    }
   }
 }

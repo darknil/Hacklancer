@@ -8,8 +8,8 @@ import {
 
 @Entity('users')
 export class UserEntity {
-  @PrimaryColumn({ type: 'int' })
-  chatId: number;
+  @PrimaryColumn({ type: 'bigint' })
+  chatId: string;
 
   @Column({ type: 'varchar', nullable: true })
   username?: string;

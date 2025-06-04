@@ -12,14 +12,19 @@ export class UserFilterService {
     private eventEmitter: EventEmitter2,
   ) {}
   async getUserFilter(chatId: number): Promise<string | null> {
-    const user = await this.userFilterRepository.findOne({ where: { chatId } });
+    const user = await this.userFilterRepository.findOne({
+      where: { chatId: chatId.toString() },
+    });
     return user?.filter || null;
   }
   async setUserFilter(chatId: number, filter: string | null): Promise<void> {
-    await this.userFilterRepository.save({ chatId: Number(chatId), filter });
+    await this.userFilterRepository.save({ chatId: chatId.toString(), filter });
   }
   async updateUserFilter(chatId: number, filter: string): Promise<void> {
-    await this.userFilterRepository.update({ chatId }, { filter });
+    await this.userFilterRepository.update(
+      { chatId: chatId.toString() },
+      { filter },
+    );
     this.eventEmitter.emit('userFilterUpdated', { chatId, filter });
   }
 }

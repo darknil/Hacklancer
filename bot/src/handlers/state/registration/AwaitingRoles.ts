@@ -4,8 +4,6 @@ import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
 import { MESSAGES } from '../../../constants/messages'
 import { RoleService } from '../../../services/role.service'
-import { RoleRepository } from '../../../repositories/RoleRepository'
-import { ExternalRoleService } from '../../../external/ExternalRoleService'
 
 export class AwaitingRolesState implements UserStateHandler {
   constructor(
@@ -28,7 +26,7 @@ export class AwaitingRolesState implements UserStateHandler {
     const selectedRoles = ctx.pollAnswer.option_ids.map((i) => sortedRoles[i])
 
     this.userRepository.update(userId, {
-      roleId: selectedRoles[0].id,
+      roleId: selectedRoles[0].uuid,
       state: STATES.REGISTRATION.AWAITING_DESCRIPTION
     })
     await ctx.api.sendMessage(

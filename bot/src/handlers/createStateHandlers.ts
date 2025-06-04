@@ -17,6 +17,7 @@ import { RoleRepository } from '../repositories/RoleRepository'
 import { RecommendationService } from '../services/recommendation.service'
 import { RoleService } from '../services/role.service'
 import { ExternalRoleService } from '../external/ExternalRoleService'
+import { ProfileAwaitingActionState } from './state/profile/AwaitingAction'
 
 export class StateHandlerFactory {
   private userRepository: UserRepository
@@ -83,7 +84,9 @@ export class StateHandlerFactory {
     // =================== MAIN ===================
     [STATES.MAIN.AWAITING_ACTION]: new MainAwaitingActionState(
       this.userRepository,
-      this.recommendationService
+      this.recommendationService,
+      this.userService,
+      this.roleService
     ),
     // =================== MAIN ===================
 
@@ -93,7 +96,15 @@ export class StateHandlerFactory {
       this.userProfileRepository,
       this.recommendationService,
       this.userRepository
-    )
+    ),
     // =================== MATCHING ===================
+
+    // =================== PROFILE ===================
+    [STATES.PROFILE.AWAITING_ACTION]: new ProfileAwaitingActionState(
+      this.userRepository,
+      this.roleService,
+      this.userService
+    )
+    // =================== PROFILE ===================
   })
 }
