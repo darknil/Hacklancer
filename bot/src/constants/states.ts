@@ -15,5 +15,7 @@ export const STATES = {
     EDIT_DESCRIPTION: 'profile:edit_description',
     EDIT_PHOTO: 'profile:edit_photo'
   },
-  MATCHING: {}
+  MATCHING: {
+    VIEW_PROFILE: 'matching:view_profile'
+  }
 } as const

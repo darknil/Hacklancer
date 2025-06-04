@@ -8,16 +8,10 @@ import { RoleRepository } from '../../../repositories/RoleRepository'
 import { ExternalRoleService } from '../../../external/ExternalRoleService'
 
 export class AwaitingCityState implements UserStateHandler {
-  private userRepository: UserRepository
-  private roleService: RoleService
-
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.roleService = new RoleService(
-      new RoleRepository(),
-      new ExternalRoleService()
-    )
-  }
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly roleService: RoleService
+  ) {}
 
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id.toString()

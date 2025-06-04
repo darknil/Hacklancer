@@ -3,22 +3,10 @@ import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
 import { MESSAGES } from '../../../constants/messages'
 import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
-import { RoleRepository } from '../../../repositories/RoleRepository'
-import { ExternalRoleService } from '../../../external/ExternalRoleService'
-import { RoleService } from '../../../services/role.service'
 import { KEYBOARDS } from '../../../constants/KeyBoards'
 
 export class AwaitingDescriptionState implements UserStateHandler {
-  private userRepository: UserRepository
-  private roleService: RoleService
-
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.roleService = new RoleService(
-      new RoleRepository(),
-      new ExternalRoleService()
-    )
-  }
+  constructor(private userRepository: UserRepository) {}
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id.toString()
     if (!userId) return

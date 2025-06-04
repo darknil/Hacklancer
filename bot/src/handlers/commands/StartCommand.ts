@@ -7,20 +7,17 @@ import { UserService } from '../../services/user.service'
 import { ExternalUserService } from '../../external/ExternalUserService'
 import { IMAGES_URL } from '../../constants/images'
 import { KEYBOARDS } from '../../constants/KeyBoards'
+import { RecommendationService } from '../../services/recommendation.service'
+import { ExternalRecommendationService } from '../../external/ExternalRecommendationService'
+import { UserProfileRepository } from '../../repositories/UserProfileRepository'
+import { RoleRepository } from '../../repositories/RoleRepository'
 
 export class StartCommand implements BotCommand {
-  private userRepository: UserRepository
-  private userService: UserService
-  private externalUserService: ExternalUserService
-
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.externalUserService = new ExternalUserService()
-    this.userService = new UserService(
-      this.userRepository,
-      this.externalUserService
-    )
-  }
+  constructor(
+    private readonly userService: UserService,
+    private readonly userRepository: UserRepository,
+    private readonly recommendationService: RecommendationService
+  ) {}
 
   async handle(ctx: Context): Promise<void> {
     if (!ctx.from) return
@@ -44,8 +41,13 @@ export class StartCommand implements BotCommand {
 
       await ctx.reply(MESSAGES[lang].registration.welcome)
       await ctx.reply(MESSAGES[lang].registration.enterName)
+      return
     }
 
+    this.userRepository.update(userData.chatId, {
+      state: STATES.MAIN.AWAITING_ACTION
+    })
+    this.recommendationService.initializeUserSession(user.chatId)
     await ctx.api.sendAnimation(userData.chatId, IMAGES_URL.main, {
       caption: MESSAGES[lang].main,
       reply_markup: {
