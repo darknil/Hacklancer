@@ -1,4 +1,11 @@
-import { IsOptional, IsString, IsNumber, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsArray,
+} from 'class-validator';
 export class CreateUserDto {
   @IsNumber()
   chatId: number;
@@ -22,26 +29,16 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   language_code?: string;
-
-  @IsOptional()
-  @IsString()
-  nickname?: string;
-
-  @IsOptional()
-  @IsString()
-  city?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsString()
-  photoURL?: string;
 }
 export class getUserDto {
   @IsNumber()
   chatId: number;
+}
+export class GetUsersByIdsDto {
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  Ids: number[];
 }
 export class UpdateUserDto {
   @IsOptional()
@@ -78,8 +75,13 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  roleId?: string;
+
+  @IsOptional()
+  @IsString()
   photoURL?: string;
 }
+
 export class ResponseUserDto {
   chatId: number;
   username?: string;
@@ -92,8 +94,6 @@ export class ResponseUserDto {
   description?: string;
   photoURL?: string;
   roleId?: string;
-
-  role?: string;
 
   constructor(partial: Partial<ResponseUserDto>) {
     Object.assign(this, partial);

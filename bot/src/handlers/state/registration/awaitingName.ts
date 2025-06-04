@@ -5,11 +5,7 @@ import { STATES } from '../../../constants/states'
 import { MESSAGES } from '../../../constants/messages'
 
 export class AwaitingNameState implements UserStateHandler {
-  private userRepository: UserRepository
-
-  constructor() {
-    this.userRepository = new UserRepository()
-  }
+  constructor(private readonly userRepository: UserRepository) {}
 
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id

@@ -13,6 +13,9 @@ export class RoleService {
   ) {}
 
   async createRole(name: string): Promise<Role> {
+    const existing = await this.roleRepository.findOne({ where: { name } });
+    if (existing) return existing;
+
     const role = this.roleRepository.create({ name });
     return this.roleRepository.save(role);
   }
@@ -20,6 +23,7 @@ export class RoleService {
     return this.roleRepository.find();
   }
   async findOne(id: string): Promise<Role> {
+    // TODO: FIX ME
     return this.roleRepository.findOne({ where: { id } });
   }
 }

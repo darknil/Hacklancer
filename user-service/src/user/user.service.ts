@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import {
   CreateUserDto,
@@ -13,7 +13,7 @@ import {
 } from '../dto/user.dtos';
 import { STATES } from '../constants/states';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
+import { MessageBrokerService } from 'src/message-broker/message-broker.service';
 
 @Injectable()
 export class UserService {
@@ -21,38 +21,46 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly httpService: HttpService,
+    private readonly broker: MessageBrokerService,
   ) {}
 
-  async getUserById(id: string): Promise<ResponseUserDto> {
+  async getRecentUsers(): Promise<number[]> {
+    const users = await this.userRepository.find({
+      where: {
+        photoURL: Not(IsNull()),
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+    });
+    return users.map((user) => user.chatId);
+  }
+  async getUsersById(chatIds: number[]): Promise<UserEntity[] | null> {
+    return this.userRepository.find({ where: { chatId: In(chatIds) } });
+  }
+  async getUserById(id: number): Promise<ResponseUserDto> {
     const user = await this.userRepository.findOne({
       where: { chatId: Number(id) },
     });
+
     if (!user) {
-      throw new NotFoundException(`Пользователь с chatId=${id} не найден`);
+      throw new NotFoundException(`User with chatId=${id} not found`);
     }
 
-    let role = null;
-    if (user.roleId) {
-      const rolesServiceUrl = `http://${process.env.ROLE_SERVICE_HOST}:3000/roles/${user.roleId}`;
-      const response = await firstValueFrom(
-        this.httpService.get(rolesServiceUrl),
-      );
-      role = response.data;
-    }
-
-    return new ResponseUserDto({ ...user, role });
+    return new ResponseUserDto({ ...user });
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
     try {
       const existedUser = await this.userRepository.findOne({
-        where: { chatId: createUserDto.chatId },
+        where: { chatId: Number(createUserDto.chatId) },
       });
       if (existedUser) {
         return existedUser;
       }
       createUserDto.state = STATES.REGISTRATION.WAITING_FOR_NAME;
       const user = this.userRepository.create(createUserDto);
+      this.broker.emit('user.created', { userId: createUserDto.chatId });
       return this.userRepository.save(user);
     } catch (error) {
       throw new InternalServerErrorException('Creating user error');
@@ -60,10 +68,12 @@ export class UserService {
   }
 
   async updateUser(
-    id: string,
+    id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity> {
     try {
+      console.log('user id : ', id);
+      console.log('updateUserDto : ', updateUserDto);
       const user = await this.getUserById(id);
       const updated = Object.assign(user, updateUserDto);
       return await this.userRepository.save(updated);
