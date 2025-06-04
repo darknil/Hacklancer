@@ -9,17 +9,10 @@ import { UserService } from '../../../services/user.service'
 import { ExternalUserService } from '../../../external/ExternalUserService'
 
 export class AwaitingAprovalState implements UserStateHandler {
-  private userRepository: UserRepository
-  private userSerice: UserService
-  private externalUserService: ExternalUserService
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.externalUserService = new ExternalUserService()
-    this.userSerice = new UserService(
-      this.userRepository,
-      this.externalUserService
-    )
-  }
+  constructor(
+    private userRepository: UserRepository,
+    private userSerice: UserService
+  ) {}
 
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id

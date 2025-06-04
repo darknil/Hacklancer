@@ -41,4 +41,8 @@ export class UserService {
   async saveUser(user: UserData) {
     await this.externalUserService.updateUser(user)
   }
+  async getLastViewedId(userId: number): Promise<number | undefined> {
+    const userData = await this.userRepository.get(userId)
+    return userData?.lastViewedId
+  }
 }

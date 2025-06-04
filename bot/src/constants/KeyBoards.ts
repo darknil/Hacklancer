@@ -44,5 +44,15 @@ export const KEYBOARDS = {
     myProfile: '2',
     hackathons: '3',
     keyboard: [[{ text: '1' }, { text: '2' }, { text: '3' }]]
+  },
+  swiping: {
+    like: '❤️',
+    next: '➡️',
+    settings: '⚙️',
+    home: '🏠',
+    keyboard: [
+      [{ text: '❤️' }, { text: '➡️' }],
+      [{ text: '⚙️' }, { text: '🏠' }]
+    ]
   }
 }
