@@ -1,5 +1,5 @@
 export type RoleData = {
-  id: string
+  uuid: string
   numericId: number | null
   name: string
 }

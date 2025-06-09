@@ -1,16 +1,20 @@
 import { Context } from 'grammy'
 import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
 import { MESSAGES } from '../../../constants/messages'
+import { KEYBOARDS } from '../../../constants/KeyBoards'
+import { IMAGES_URL } from '../../../constants/images'
+import { UserService } from '../../../services/user.service'
+import { RoleService } from '../../../services/role.service'
 import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
-import { KEYBOARDS } from '../../../constants/KeyBoards'
-import { UserService } from '../../../services/user.service'
 
-export class AwaitingDescriptionState implements UserStateHandler {
+export class ProfileAwaitingDescriptionState implements UserStateHandler {
   constructor(
-    private userRepository: UserRepository,
-    private userService: UserService
+    private userService: UserService,
+    private roleService: RoleService,
+    private userRepository: UserRepository
   ) {}
+
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id
     if (!userId) return
@@ -40,21 +44,33 @@ export class AwaitingDescriptionState implements UserStateHandler {
       return
     }
 
-    this.userRepository.update(userId, {
+    await this.userRepository.update(userId, {
       description: message,
-      state: STATES.REGISTRATION.AWAITING_PHOTO
+      state: STATES.PROFILE.AWAITING_ACTION
     })
-    const userData = await this.userRepository.get(userId)
+    await this.sendProfile(userId, lang, ctx)
+  }
+  private async sendProfile(userId: number, lang: 'ru' | 'en', ctx: Context) {
+    const userData = await this.userService.find(userId)
+    if (!userData) return
+    const userRole = await this.roleService.findRole(userData?.roleId ?? '')
+    const caption = MESSAGES[lang].profile(
+      userData?.nickname ?? '',
+      userData?.city ?? '',
+      userData?.description ?? '',
+      userRole?.name ?? ''
+    )
     if (userData?.photoURL) {
-      await ctx.reply(MESSAGES[lang].registration.previousPhoto, {
+      await ctx.api.sendPhoto(userId, userData?.photoURL, {
+        caption,
+        parse_mode: 'HTML',
         reply_markup: {
-          keyboard: KEYBOARDS[lang].registration.usePhoto.keyboard,
+          keyboard: KEYBOARDS.profile.awaitingAction.keyboard,
           resize_keyboard: true,
           one_time_keyboard: true
         }
       })
-      return
+      await ctx.reply(MESSAGES[lang].profileOptions)
     }
-    await ctx.reply(MESSAGES[lang].registration.sendPhoto)
   }
 }

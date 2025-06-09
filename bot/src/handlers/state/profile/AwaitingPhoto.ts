@@ -5,13 +5,15 @@ import { STATES } from '../../../constants/states'
 import { MESSAGES } from '../../../constants/messages'
 import { RoleService } from '../../../services/role.service'
 import { KEYBOARDS } from '../../../constants/KeyBoards'
+import { UserService } from '../../../services/user.service'
 
-export class AwaitingPhotoState implements UserStateHandler {
+export class ProfileAwaitingPhotoState implements UserStateHandler {
   MAX_SIZE: number
 
   constructor(
     private userRepository: UserRepository,
-    private roleService: RoleService
+    private roleService: RoleService,
+    private userService: UserService
   ) {
     this.MAX_SIZE = 1024 * 1024 * 5
   }
@@ -19,21 +21,11 @@ export class AwaitingPhotoState implements UserStateHandler {
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.message?.chat?.id
     if (!userId) return
-    const userLang = ctx.from?.language_code
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
     const photo = ctx.message?.photo
-    const userData = await this.userRepository.get(userId)
-
-    if (
-      !photo &&
-      ctx.message?.text === KEYBOARDS[lang].registration.usePhoto.yes
-    ) {
-      this.userRepository.update(userId, {
-        state: STATES.REGISTRATION.AWAITING_APPROVAL
-      })
-      await this.sendProfile(userId, lang, ctx)
-      return
-    }
 
     if (!photo) {
       await ctx.reply(MESSAGES[lang].registration.sendPhoto)
@@ -47,13 +39,14 @@ export class AwaitingPhotoState implements UserStateHandler {
 
     await this.userRepository.update(userId, {
       photoURL: photo[0].file_id,
-      state: STATES.REGISTRATION.AWAITING_APPROVAL
+      state: STATES.PROFILE.AWAITING_ACTION
     })
 
     await this.sendProfile(userId, lang, ctx)
   }
   private async sendProfile(userId: number, lang: 'ru' | 'en', ctx: Context) {
-    const userData = await this.userRepository.get(userId)
+    const userData = await this.userService.find(userId)
+    if (!userData) return
     const userRole = await this.roleService.findRole(userData?.roleId ?? '')
     const caption = MESSAGES[lang].profile(
       userData?.nickname ?? '',
@@ -61,17 +54,17 @@ export class AwaitingPhotoState implements UserStateHandler {
       userData?.description ?? '',
       userRole?.name ?? ''
     )
-    await ctx.reply(MESSAGES[lang].registration.aproval)
     if (userData?.photoURL) {
       await ctx.api.sendPhoto(userId, userData?.photoURL, {
         caption,
         parse_mode: 'HTML',
         reply_markup: {
-          keyboard: KEYBOARDS[lang].registration.aproval.keyboard,
+          keyboard: KEYBOARDS.profile.awaitingAction.keyboard,
           resize_keyboard: true,
           one_time_keyboard: true
         }
       })
+      await ctx.reply(MESSAGES[lang].profileOptions)
     }
   }
 }

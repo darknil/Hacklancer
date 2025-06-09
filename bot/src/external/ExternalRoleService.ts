@@ -12,7 +12,7 @@ export class ExternalRoleService {
       const res = await axios.get(`${this.baseUrl}/roles`)
 
       const rolesWithNumericId = res.data.map((role: any, index: number) => ({
-        id: role.id,
+        uuid: role.id,
         numericId: index + 1,
         name: role.name
       }))

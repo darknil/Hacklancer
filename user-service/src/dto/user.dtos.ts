@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 export class CreateUserDto {
   @IsNumber()
-  chatId: number;
+  chatId: string;
 
   @IsOptional()
   @IsString()

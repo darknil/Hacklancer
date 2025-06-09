@@ -17,6 +17,16 @@ export const KEYBOARDS = {
         yes: 'Да, использовать прошлое фото',
         keyboard: [[{ text: 'Да, использовать прошлое фото' }]]
       }
+    },
+    liked: (senderId: number) => {
+      return {
+        inline_keyboard: [
+          [
+            { text: 'Ответить', callback_data: `response:${senderId}` },
+            { text: 'Проигнорировать', callback_data: `ignore:${senderId}` }
+          ]
+        ]
+      }
     }
   },
   en: {
@@ -37,6 +47,16 @@ export const KEYBOARDS = {
         yes: 'Yes, use previous photo!',
         keyboard: [[{ text: 'Yes, use previous photo!' }]]
       }
+    },
+    liked: (senderId: number) => {
+      return {
+        inline_keyboard: [
+          [
+            { text: 'Answer', callback_data: `response:${senderId}` },
+            { text: 'Ignore', callback_data: `ignore:${senderId}` }
+          ]
+        ]
+      }
     }
   },
   main: {
@@ -54,5 +74,14 @@ export const KEYBOARDS = {
       [{ text: '❤️' }, { text: '➡️' }],
       [{ text: '⚙️' }, { text: '🏠' }]
     ]
+  },
+  profile: {
+    awaitingAction: {
+      fillOutAgain: '1',
+      changePhoto: '2',
+      changeDescription: '3',
+      home: '🏠',
+      keyboard: [[{ text: '1' }, { text: '2' }, { text: '3' }, { text: '🏠' }]]
+    }
   }
 }

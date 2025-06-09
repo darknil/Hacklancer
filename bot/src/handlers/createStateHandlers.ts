@@ -17,6 +17,10 @@ import { RoleRepository } from '../repositories/RoleRepository'
 import { RecommendationService } from '../services/recommendation.service'
 import { RoleService } from '../services/role.service'
 import { ExternalRoleService } from '../external/ExternalRoleService'
+import { ProfileAwaitingActionState } from './state/profile/AwaitingAction'
+import { ProfileAwaitingDescriptionState } from './state/profile/AwaitingDesc'
+import { ProfileAwaitingPhotoState } from './state/profile/AwaitingPhoto'
+import { UserProfileService } from '../services/userProfile.service'
 
 export class StateHandlerFactory {
   private userRepository: UserRepository
@@ -28,6 +32,7 @@ export class StateHandlerFactory {
   private roleRepository: RoleRepository
   private recommendationService: RecommendationService
   private roleService: RoleService
+  private userProfileService: UserProfileService
 
   constructor() {
     this.userRepository = new UserRepository()
@@ -44,7 +49,11 @@ export class StateHandlerFactory {
     )
     this.externalRecommendationService = new ExternalRecommendationService()
     this.userProfileRepository = new UserProfileRepository()
-
+    this.userProfileService = new UserProfileService(
+      this.userProfileRepository,
+      this.userService,
+      this.roleService
+    )
     this.recommendationService = new RecommendationService(
       this.externalRecommendationService,
       this.externalUserService,
@@ -60,14 +69,17 @@ export class StateHandlerFactory {
     ),
     [STATES.REGISTRATION.AWAITING_CITY]: new AwaitingCityState(
       this.userRepository,
-      this.roleService
+      this.roleService,
+      this.userService
     ),
     [STATES.REGISTRATION.AWAITING_ROLES]: new AwaitingRolesState(
       this.userRepository,
-      this.roleService
+      this.roleService,
+      this.userService
     ),
     [STATES.REGISTRATION.AWAITING_DESCRIPTION]: new AwaitingDescriptionState(
-      this.userRepository
+      this.userRepository,
+      this.userService
     ),
     [STATES.REGISTRATION.AWAITING_PHOTO]: new AwaitingPhotoState(
       this.userRepository,
@@ -83,7 +95,9 @@ export class StateHandlerFactory {
     // =================== MAIN ===================
     [STATES.MAIN.AWAITING_ACTION]: new MainAwaitingActionState(
       this.userRepository,
-      this.recommendationService
+      this.recommendationService,
+      this.userService,
+      this.roleService
     ),
     // =================== MAIN ===================
 
@@ -92,8 +106,27 @@ export class StateHandlerFactory {
       this.userService,
       this.userProfileRepository,
       this.recommendationService,
-      this.userRepository
-    )
+      this.userRepository,
+      this.userProfileService
+    ),
     // =================== MATCHING ===================
+
+    // =================== PROFILE ===================
+    [STATES.PROFILE.AWAITING_ACTION]: new ProfileAwaitingActionState(
+      this.userRepository,
+      this.roleService,
+      this.userService
+    ),
+    [STATES.PROFILE.EDIT_DESCRIPTION]: new ProfileAwaitingDescriptionState(
+      this.userService,
+      this.roleService,
+      this.userRepository
+    ),
+    [STATES.PROFILE.EDIT_PHOTO]: new ProfileAwaitingPhotoState(
+      this.userRepository,
+      this.roleService,
+      this.userService
+    )
+    // =================== PROFILE ===================
   })
 }

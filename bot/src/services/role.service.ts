@@ -8,8 +8,8 @@ export class RoleService {
     private externalRoleService: ExternalRoleService
   ) {}
 
-  async findRole(roleId: string): Promise<RoleData | null> {
-    const cachedRole = await this.roleRepository.get(String(roleId))
+  async findRole(roleUuid: string): Promise<RoleData | null> {
+    const cachedRole = await this.roleRepository.get(String(roleUuid))
     if (cachedRole) {
       return cachedRole
     }
@@ -17,9 +17,9 @@ export class RoleService {
     const externalRoles = await this.externalRoleService.fetchUserRoles()
     if (externalRoles) {
       externalRoles.map(async (role) => {
-        this.roleRepository.save(role.id, role)
+        this.roleRepository.save(role.uuid, role)
       })
-      const foundRole = externalRoles.find((role) => role.id === roleId)
+      const foundRole = externalRoles.find((role) => role.uuid === roleUuid)
       return foundRole || null
     }
 
@@ -34,7 +34,7 @@ export class RoleService {
     const externalRoles = await this.externalRoleService.fetchUserRoles()
     if (externalRoles) {
       externalRoles.map(async (role) => {
-        this.roleRepository.save(role.id, role)
+        this.roleRepository.save(role.uuid, role)
       })
       // console.log('externalRoles :', externalRoles)
       console.log('roles lenght:', externalRoles.length)

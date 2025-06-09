@@ -8,7 +8,6 @@ export class CommandSubscriber {
   subscribe(handlers: BotCommandHandlers) {
     for (const [command, handler] of Object.entries(handlers)) {
       this.bot.command(command, (ctx) => handler.handle(ctx))
-      console.log(`Команда /${command} зарегистрирована`)
     }
   }
 }

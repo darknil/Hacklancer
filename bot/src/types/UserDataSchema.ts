@@ -3,9 +3,9 @@ import { z } from 'zod'
 export const UserDataSchema = z
   .object({
     chatId: z.number(),
-    username: z.string().optional(),
-    first_name: z.string().optional(),
-    last_name: z.string().optional(),
+    username: z.string().nullable().optional(),
+    first_name: z.string().nullable().optional(),
+    last_name: z.string().nullable().optional(),
     state: z.string().nullable().optional(),
     language_code: z.string().optional(),
     nickname: z.string().nullable().optional(),

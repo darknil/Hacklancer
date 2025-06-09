@@ -14,8 +14,13 @@ export class UserRepository {
     return await UserSessionRepository.getUserSession(userIdString)
   }
 
-  async save(userId: string, data: UserData, ttlSeconds = 30): Promise<void> {
-    await UserSessionRepository.saveUserSession(userId, data, ttlSeconds)
+  async save(
+    userId: string | number,
+    data: UserData,
+    ttlSeconds = 30
+  ): Promise<void> {
+    const userIdString = userId.toString()
+    await UserSessionRepository.saveUserSession(userIdString, data, ttlSeconds)
   }
   async update(
     userId: string | number,

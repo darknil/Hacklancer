@@ -8,22 +8,25 @@ import { IMAGES_URL } from '../../../constants/images'
 import { UserService } from '../../../services/user.service'
 import { UserProfileRepository } from '../../../repositories/UserProfileRepository'
 import { RecommendationService } from '../../../services/recommendation.service'
+import { UserProfileService } from '../../../services/userProfile.service'
 
 export class ViewProfileState implements UserStateHandler {
   constructor(
     private userService: UserService,
     private userProfileRepository: UserProfileRepository,
     private recommendationService: RecommendationService,
-    private userRepository: UserRepository
+    private userRepository: UserRepository,
+    private userProfileService: UserProfileService
   ) {}
 
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id
     if (!userId) return
 
-    const userLang = ctx.from?.language_code
-
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {
@@ -40,7 +43,8 @@ export class ViewProfileState implements UserStateHandler {
 
     switch (message) {
       case KEYBOARDS.swiping.like:
-        await ctx.reply('like coming soon.')
+        await this.sendLike(userId, ctx)
+        await ctx.reply(MESSAGES[lang].messageSend)
         break
       case KEYBOARDS.swiping.next:
         await this.sendMatchProfile(userId, lang, ctx)
@@ -122,5 +126,45 @@ export class ViewProfileState implements UserStateHandler {
         }
       })
     }
+  }
+  async sendLike(userId: number, ctx: Context) {
+    const ProfileData = await this.userProfileService.find(userId)
+    const receiverId = await this.userService.getLastViewedId(userId)
+    console.log(`[${new Date().toISOString()}] receiver ID: ${receiverId}`)
+    if (!receiverId)
+      return console.log(`[${new Date().toISOString()}] receiver id not found`)
+
+    const receiverData = await this.userService.find(receiverId)
+    if (!receiverData)
+      return console.log(
+        `[${new Date().toISOString()}] receiver data not found`
+      )
+
+    const receiverLang =
+      (receiverData.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
+    const caption = MESSAGES[receiverLang].profile(
+      ProfileData?.nickname ?? '',
+      ProfileData?.city ?? '',
+      ProfileData?.description ?? '',
+      ProfileData?.rolename ?? ''
+    )
+    if (ProfileData?.photoURL) {
+      await ctx.api.sendPhoto(receiverId, ProfileData?.photoURL, {
+        caption,
+        parse_mode: 'HTML'
+      })
+      await ctx.api.sendMessage(
+        receiverId,
+        MESSAGES[receiverLang].like(ProfileData?.nickname ?? ''),
+        {
+          reply_markup: KEYBOARDS[receiverLang].liked(userId)
+        }
+      )
+      return
+    }
+    console.log(
+      `[${new Date().toISOString()}] profile data image not found. profileData :`,
+      ProfileData
+    )
   }
 }

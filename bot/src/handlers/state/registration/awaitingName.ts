@@ -16,8 +16,17 @@ export class AwaitingNameState implements UserStateHandler {
     const lang = userLang === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
+
     if (typeof message !== 'string') {
       await ctx.reply(MESSAGES[lang].registration.enterName)
+      return
+    }
+    const trimmed = message.trim()
+    const isTooLong = trimmed.length > 30
+    const containsHtml = /<[^>]+>/.test(trimmed)
+    const hasNewLines = /\r|\n/.test(trimmed)
+    if (isTooLong || containsHtml || hasNewLines) {
+      await ctx.reply(MESSAGES[lang].registration.invalidName)
       return
     }
 
