@@ -18,9 +18,10 @@ export class AwaitingAprovalState implements UserStateHandler {
     const userId = ctx.from?.id
     if (!userId) return
 
-    const userLang = ctx.from?.language_code
-
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userSerice.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {

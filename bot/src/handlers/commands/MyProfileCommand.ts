@@ -12,7 +12,7 @@ import { ExternalRecommendationService } from '../../external/ExternalRecommenda
 import { UserProfileRepository } from '../../repositories/UserProfileRepository'
 import { RoleRepository } from '../../repositories/RoleRepository'
 
-export class StartCommand implements BotCommand {
+export class MyProfileCommand implements BotCommand {
   constructor(
     private readonly userService: UserService,
     private readonly userRepository: UserRepository,

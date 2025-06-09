@@ -3,7 +3,7 @@ import { ProfileData } from '../types/ProfileData'
 
 export class UserProfileRepository {
   private readonly ROLE_PREFIX = 'profile:'
-  private readonly DEFAULT_TTL = 600
+  private readonly DEFAULT_TTL = 300
   async get(chatId: number): Promise<ProfileData | null> {
     const redis = RedisClient.getInstance()
     const userData = await redis.get(`${this.ROLE_PREFIX}${chatId}`)

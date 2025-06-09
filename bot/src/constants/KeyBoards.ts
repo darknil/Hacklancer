@@ -17,6 +17,16 @@ export const KEYBOARDS = {
         yes: 'Да, использовать прошлое фото',
         keyboard: [[{ text: 'Да, использовать прошлое фото' }]]
       }
+    },
+    liked: (senderId: number) => {
+      return {
+        inline_keyboard: [
+          [
+            { text: 'Ответить', callback_data: `response:${senderId}` },
+            { text: 'Проигнорировать', callback_data: `ignore:${senderId}` }
+          ]
+        ]
+      }
     }
   },
   en: {
@@ -36,6 +46,16 @@ export const KEYBOARDS = {
       usePhoto: {
         yes: 'Yes, use previous photo!',
         keyboard: [[{ text: 'Yes, use previous photo!' }]]
+      }
+    },
+    liked: (senderId: number) => {
+      return {
+        inline_keyboard: [
+          [
+            { text: 'Answer', callback_data: `response:${senderId}` },
+            { text: 'Ignore', callback_data: `ignore:${senderId}` }
+          ]
+        ]
       }
     }
   },

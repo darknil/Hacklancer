@@ -22,7 +22,7 @@ export class AwaitingNameState implements UserStateHandler {
       return
     }
     const trimmed = message.trim()
-    const isTooLong = trimmed.length > 10
+    const isTooLong = trimmed.length > 30
     const containsHtml = /<[^>]+>/.test(trimmed)
     const hasNewLines = /\r|\n/.test(trimmed)
     if (isTooLong || containsHtml || hasNewLines) {

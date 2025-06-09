@@ -18,7 +18,6 @@ export class RecommendationService {
     const ids = await this.externalRecommendationService.fetchRecommendations(
       chatId
     )
-    console.log(`[${new Date().toISOString()}] fetching recommendations :`, ids)
     if (!ids.length) return
 
     const users = await Promise.all(
@@ -27,9 +26,6 @@ export class RecommendationService {
 
     const userDataArray: UserData[] = users.filter((u): u is UserData => !!u)
 
-    console.log(
-      `[${new Date().toISOString()}] initializing session for user :${chatId}`
-    )
     await this.userRepository.update(chatId, {
       recommendationArray: ids
     })
@@ -37,13 +33,10 @@ export class RecommendationService {
     await Promise.all(
       userDataArray.map(async (user) => {
         const existedProfile = await this.userProfileRepository.get(user.chatId)
-        // if (existedProfile) return
+        if (existedProfile) return
         try {
           const role = await this.roleService.findRole(user.roleId ?? '')
-          console.log(
-            `[${new Date().toISOString()}] user role id:`,
-            user.roleId
-          )
+
           const profileData: ProfileData = {
             nickname: user.nickname ?? '',
             city: user.city ?? '',

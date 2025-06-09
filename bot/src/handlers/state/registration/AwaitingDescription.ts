@@ -4,16 +4,21 @@ import { MESSAGES } from '../../../constants/messages'
 import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
 import { KEYBOARDS } from '../../../constants/KeyBoards'
+import { UserService } from '../../../services/user.service'
 
 export class AwaitingDescriptionState implements UserStateHandler {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private userService: UserService
+  ) {}
   async handle(ctx: Context): Promise<void> {
-    const userId = ctx.from?.id.toString()
+    const userId = ctx.from?.id
     if (!userId) return
 
-    const userLang = ctx.from?.language_code
-
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {

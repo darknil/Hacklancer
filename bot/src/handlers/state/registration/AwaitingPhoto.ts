@@ -72,15 +72,6 @@ export class AwaitingPhotoState implements UserStateHandler {
           one_time_keyboard: true
         }
       })
-    } else {
-      await ctx.reply(caption, {
-        parse_mode: 'HTML',
-        reply_markup: {
-          keyboard: KEYBOARDS[lang].registration.aproval.keyboard,
-          resize_keyboard: true,
-          one_time_keyboard: true
-        }
-      })
     }
   }
 }

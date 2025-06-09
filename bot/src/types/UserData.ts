@@ -11,5 +11,5 @@ export interface UserData {
   photoURL?: string | null
   roleId?: string | null
   recommendationArray?: number[]
-  lastViewedId?: number
+  lastViewedId?: number | null
 }

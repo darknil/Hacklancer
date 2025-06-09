@@ -19,9 +19,10 @@ export class ProfileAwaitingActionState implements UserStateHandler {
     const userId = ctx.from?.id
     if (!userId) return
 
-    const userLang = ctx.from?.language_code
-
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {
@@ -35,8 +36,6 @@ export class ProfileAwaitingActionState implements UserStateHandler {
       })
       return
     }
-    const user = await this.userService.find(userId)
-    if (!user) return
 
     switch (message) {
       case KEYBOARDS.profile.awaitingAction.fillOutAgain:
@@ -53,7 +52,7 @@ export class ProfileAwaitingActionState implements UserStateHandler {
           user.chatId,
           STATES.PROFILE.EDIT_DESCRIPTION
         )
-        await ctx.reply('.')
+        await ctx.reply(MESSAGES[lang].registration.enterDescription)
         break
 
       case KEYBOARDS.profile.awaitingAction.changePhoto:
@@ -61,7 +60,7 @@ export class ProfileAwaitingActionState implements UserStateHandler {
           user.chatId,
           STATES.PROFILE.EDIT_PHOTO
         )
-        await ctx.reply('change photo.')
+        await ctx.reply(MESSAGES[lang].registration.sendPhoto)
         break
 
       case KEYBOARDS.profile.awaitingAction.home:
@@ -98,26 +97,17 @@ export class ProfileAwaitingActionState implements UserStateHandler {
       userData?.description ?? '',
       userRole?.name ?? ''
     )
-    await ctx.reply(MESSAGES[lang].registration.aproval)
     if (userData?.photoURL) {
       await ctx.api.sendPhoto(userId, userData?.photoURL, {
         caption,
         parse_mode: 'HTML',
         reply_markup: {
-          keyboard: KEYBOARDS[lang].registration.aproval.keyboard,
+          keyboard: KEYBOARDS.profile.awaitingAction.keyboard,
           resize_keyboard: true,
           one_time_keyboard: true
         }
       })
-    } else {
-      await ctx.reply(caption, {
-        parse_mode: 'HTML',
-        reply_markup: {
-          keyboard: KEYBOARDS[lang].registration.aproval.keyboard,
-          resize_keyboard: true,
-          one_time_keyboard: true
-        }
-      })
+      await ctx.reply(MESSAGES[lang].profileOptions)
     }
   }
 }
