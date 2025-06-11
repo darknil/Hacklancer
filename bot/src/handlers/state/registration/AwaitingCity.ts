@@ -6,26 +6,23 @@ import { MESSAGES } from '../../../constants/messages'
 import { RoleService } from '../../../services/role.service'
 import { RoleRepository } from '../../../repositories/RoleRepository'
 import { ExternalRoleService } from '../../../external/ExternalRoleService'
+import { UserService } from '../../../services/user.service'
 
 export class AwaitingCityState implements UserStateHandler {
-  private userRepository: UserRepository
-  private roleService: RoleService
-
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.roleService = new RoleService(
-      new RoleRepository(),
-      new ExternalRoleService()
-    )
-  }
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly roleService: RoleService,
+    private readonly userService: UserService
+  ) {}
 
   async handle(ctx: Context): Promise<void> {
-    const userId = ctx.from?.id.toString()
+    const userId = ctx.from?.id
     if (!userId) return
 
-    const userLang = ctx.from?.language_code
-
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {

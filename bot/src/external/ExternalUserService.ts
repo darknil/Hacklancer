@@ -10,27 +10,24 @@ export class ExternalUserService {
   }
   async fetchUserProfile(chatId: number): Promise<UserData | null> {
     try {
-      const res = await axios.get(`${this.baseUrl}/users/${chatId}`)
-      const validated = UserDataSchema.safeParse(res.data) as {
-        success: boolean
-        data: UserData
-        error?: any
-      }
+      const res = await axios.get(`${this.baseUrl}/users?chatId=${chatId}`)
+      const validated = UserDataSchema.safeParse(res.data)
 
       if (!validated.success) {
-        console.error('Validation error :', validated.error)
+        console.error('Validation error:', validated.error)
         return null
       }
 
       return validated.data
     } catch (err: any) {
-      if (err.response && err.response.status === 404) {
+      if (err.response?.status === 404) {
         return null
       }
       console.error('❌ Failed to fetch user profile:', err)
       return null
     }
   }
+
   async createUser(userData: UserData): Promise<UserData | null> {
     console.log('[externalUserService] Creating user:', userData)
 
@@ -47,15 +44,25 @@ export class ExternalUserService {
   }
   async updateUser(userData: UserData): Promise<void> {
     try {
-      const { chatId, ...rest } = userData
+      const UserUpdateSchema = UserDataSchema.omit({ chatId: true }).strip()
+      const validated = UserUpdateSchema.safeParse(userData)
+      if (!validated.success) {
+        console.error('❌ Invalid user data for update:', validated.error)
+        return
+      }
 
       const updateData = Object.fromEntries(
-        Object.entries(rest).filter(([_, value]) => value != null)
+        Object.entries(validated.data).filter(
+          ([_, value]) => value !== undefined
+        )
       )
-      await axios.put(`${this.baseUrl}/users/${userData.chatId}`, updateData)
+      console.log(`[${new Date().toISOString()}] 💾 Saving user:`, updateData)
+      await axios.put(
+        `${this.baseUrl}/users?chatId=${userData.chatId}`,
+        updateData
+      )
     } catch (err) {
-      console.error('saving user error :', err)
-      return
+      console.error('❌ saving user error:', err)
     }
   }
 }

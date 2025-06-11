@@ -4,27 +4,25 @@ import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
 import { MESSAGES } from '../../../constants/messages'
 import { RoleService } from '../../../services/role.service'
-import { RoleRepository } from '../../../repositories/RoleRepository'
-import { ExternalRoleService } from '../../../external/ExternalRoleService'
+import { UserService } from '../../../services/user.service'
 
 export class AwaitingRolesState implements UserStateHandler {
-  private userRepository: UserRepository
-  private roleService: RoleService
-
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.roleService = new RoleService(
-      new RoleRepository(),
-      new ExternalRoleService()
-    )
-  }
+  constructor(
+    private userRepository: UserRepository,
+    private roleService: RoleService,
+    private userService: UserService
+  ) {}
 
   async handle(ctx: Context): Promise<void> {
     if (!ctx.pollAnswer?.user?.id) return
     const userId = ctx.pollAnswer?.user?.id
     const userLang = ctx.pollAnswer?.user?.language_code
 
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
+
     const roles = await this.roleService.getAllRoles()
     const sortedRoles = roles.sort((a, b) => {
       const aId = a.numericId || 0
@@ -34,7 +32,7 @@ export class AwaitingRolesState implements UserStateHandler {
     const selectedRoles = ctx.pollAnswer.option_ids.map((i) => sortedRoles[i])
 
     this.userRepository.update(userId, {
-      roleId: selectedRoles[0].id,
+      roleId: selectedRoles[0].uuid,
       state: STATES.REGISTRATION.AWAITING_DESCRIPTION
     })
     await ctx.api.sendMessage(

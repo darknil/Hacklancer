@@ -3,29 +3,22 @@ import { UserStateHandler } from '../../../Interfaces/IUserStateHandler'
 import { MESSAGES } from '../../../constants/messages'
 import { UserRepository } from '../../../repositories/UserRepository'
 import { STATES } from '../../../constants/states'
-import { RoleRepository } from '../../../repositories/RoleRepository'
-import { ExternalRoleService } from '../../../external/ExternalRoleService'
-import { RoleService } from '../../../services/role.service'
 import { KEYBOARDS } from '../../../constants/KeyBoards'
+import { UserService } from '../../../services/user.service'
 
 export class AwaitingDescriptionState implements UserStateHandler {
-  private userRepository: UserRepository
-  private roleService: RoleService
-
-  constructor() {
-    this.userRepository = new UserRepository()
-    this.roleService = new RoleService(
-      new RoleRepository(),
-      new ExternalRoleService()
-    )
-  }
+  constructor(
+    private userRepository: UserRepository,
+    private userService: UserService
+  ) {}
   async handle(ctx: Context): Promise<void> {
-    const userId = ctx.from?.id.toString()
+    const userId = ctx.from?.id
     if (!userId) return
 
-    const userLang = ctx.from?.language_code
-
-    const lang = userLang === 'ru' ? 'ru' : 'en'
+    const user = await this.userService.find(userId)
+    if (!user) return
+    const lang =
+      (user.language_code ?? 'en').toLowerCase() === 'ru' ? 'ru' : 'en'
 
     const message = ctx.message?.text
     if (typeof message !== 'string') {
@@ -38,12 +31,20 @@ export class AwaitingDescriptionState implements UserStateHandler {
       return
     }
 
+    const trimmed = message.trim()
+    const isTooLong = trimmed.length > 300
+    const containsHtml = /<[^>]+>/.test(trimmed)
+
+    if (isTooLong || containsHtml) {
+      await ctx.reply(MESSAGES[lang].registration.invalidDescription)
+      return
+    }
+
     this.userRepository.update(userId, {
       description: message,
       state: STATES.REGISTRATION.AWAITING_PHOTO
     })
     const userData = await this.userRepository.get(userId)
-    console.log('userData :', userData)
     if (userData?.photoURL) {
       await ctx.reply(MESSAGES[lang].registration.previousPhoto, {
         reply_markup: {

@@ -6,8 +6,16 @@ export const STATES = {
     AWAITING_PHOTO: 'registration:awaiting_photo',
     AWAITING_ROLES: 'registration:awaiting_roles',
     AWAITING_APPROVAL: 'registration:awaiting_approval'
-    // Можно добавить другие состояния регистрации
   },
-  Home: {},
-  Profile: {}
+  MAIN: {
+    AWAITING_ACTION: 'main:awaiting_action'
+  },
+  PROFILE: {
+    AWAITING_ACTION: 'profile:awaiting_action',
+    EDIT_DESCRIPTION: 'profile:edit_description',
+    EDIT_PHOTO: 'profile:edit_photo'
+  },
+  MATCHING: {
+    VIEW_PROFILE: 'matching:view_profile'
+  }
 } as const

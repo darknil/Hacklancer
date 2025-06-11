@@ -12,27 +12,6 @@ services:
     networks:
       - app-network
 
-  bot:
-    build:
-      context: ./bot
-      dockerfile: Dockerfile
-    container_name: bot
-    depends_on:
-      - redis
-      - role-service
-      - user-service
-    ports:
-      - '${BOT_PORT}:3000'
-    env_file:
-      - .env
-    environment:
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - USER_SERVICE_PORT=${USER_SERVICE_PORT}
-      - USER_SERVICE_HOST=${USER_SERVICE_HOST}
-    networks:
-      - app-network
-
   postgres:
     image: postgres:15
     container_name: postgres
@@ -44,6 +23,17 @@ services:
       - '${DB_PORT}:${DB_PORT}'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     networks:
       - app-network
 
@@ -90,6 +80,48 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+  recommendation-service:
+    build:
+      context: ./recommendation-service
+      dockerfile: Dockerfile
+    container_name: recommendation-service
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - '${RECOMMENDATION_SERVICE_PORT}:3000'
+    volumes:
+      - ./recommendation-service:/app
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: bot
+    depends_on:
+      - redis
+      - role-service
+      - user-service
+    ports:
+      - '${BOT_PORT}:3000'
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - USER_SERVICE_PORT=${USER_SERVICE_PORT}
+      - USER_SERVICE_HOST=${USER_SERVICE_HOST}
+    networks:
+      - app-network
 
 volumes:
   redis_data:

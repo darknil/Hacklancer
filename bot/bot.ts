@@ -1,16 +1,19 @@
 import { Bot, Context } from 'grammy'
 import dotenv from 'dotenv'
-import UserSessionRepository from './src/repositories/UserSessionRepository'
-import { createCommandHandlers } from './src/handlers/createCommandHandlers'
-import { createStateHandlers } from './src/handlers/createStateHandlers'
+import { CommandHandlerFactory } from './src/handlers/createCommandHandlers'
+import { StateHandlerFactory } from './src/handlers/createStateHandlers'
 import { ServiceConfig } from './src/config/serviceConfig'
 import { commands } from './src/constants/commands'
+import { QueryHandlerFactory } from './src/handlers/createQueryHandlers'
 
 dotenv.config()
 
 class TGBot {
   private bot: Bot
   private services: ReturnType<typeof ServiceConfig.createServices>
+  private CommandHandlerFactory: CommandHandlerFactory
+  private StateHandlerFactory: StateHandlerFactory
+  private QueryHandleFactory: QueryHandlerFactory
 
   constructor() {
     const token = process.env.BOT_TOKEN
@@ -20,14 +23,16 @@ class TGBot {
     }
 
     this.bot = new Bot(token)
+    this.CommandHandlerFactory = new CommandHandlerFactory()
+    this.StateHandlerFactory = new StateHandlerFactory()
+    this.QueryHandleFactory = new QueryHandlerFactory()
     this.services = ServiceConfig.createServices(this.bot)
     ServiceConfig.subscribeTTLExpiration(this.services.userService)
 
     this.registerCommands()
     this.registerMessageHandler()
     this.registerPollHandler()
-    const stateHandlers = createStateHandlers()
-    this.services.stateSubscriber.registerHandlers(stateHandlers)
+    this.registerCallbackQueryHandler()
 
     this.bot.start()
     console.log('=========================')
@@ -37,10 +42,14 @@ class TGBot {
 
   private registerCommands() {
     this.bot.api.setMyCommands(commands)
-    const handlers = createCommandHandlers()
-    this.services.commandSubscriber.subscribe(handlers)
+
+    const commandhandlers = this.CommandHandlerFactory.createCommandHandlers()
+    this.services.commandSubscriber.subscribe(commandhandlers)
   }
   private registerMessageHandler() {
+    const stateHandlers = this.StateHandlerFactory.createStateHandlers()
+    this.services.stateSubscriber.registerHandlers(stateHandlers)
+
     this.bot.on('message', async (ctx: Context) => {
       await this.services.messageHandler.handle(ctx)
     })
@@ -48,6 +57,13 @@ class TGBot {
   private registerPollHandler() {
     this.bot.on('poll_answer', async (ctx: Context) => {
       await this.services.pollHandler.handle(ctx)
+    })
+  }
+  private registerCallbackQueryHandler() {
+    const callbackQueryHandlers = this.QueryHandleFactory.createQueryHandlers()
+    this.services.querySubscriber.registerHandlers(callbackQueryHandlers)
+    this.bot.on('callback_query', async (ctx: Context) => {
+      await this.services.queryHandler.handle(ctx)
     })
   }
 }

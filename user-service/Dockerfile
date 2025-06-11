@@ -1,5 +1,5 @@
 
-FROM node:24
+FROM node:24-alpine
 
 
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 
 COPY . .

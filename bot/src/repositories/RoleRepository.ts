@@ -5,20 +5,20 @@ export class RoleRepository {
   private readonly ROLE_PREFIX = 'role:'
   private readonly DEFAULT_TTL = 3600 // 1 час в секундах
 
-  async get(roleId: string): Promise<RoleData | null> {
+  async get(roleUuid: string): Promise<RoleData | null> {
     const redis = RedisClient.getInstance()
-    const roleData = await redis.get(`${this.ROLE_PREFIX}${roleId}`)
+    const roleData = await redis.get(`${this.ROLE_PREFIX}${roleUuid}`)
     return roleData ? JSON.parse(roleData) : null
   }
 
   async save(
-    roleId: string,
+    roleUuid: string,
     data: RoleData,
     ttlSeconds = this.DEFAULT_TTL
   ): Promise<void> {
     const redis = RedisClient.getInstance()
     await redis.setEx(
-      `${this.ROLE_PREFIX}${roleId}`,
+      `${this.ROLE_PREFIX}${roleUuid}`,
       ttlSeconds,
       JSON.stringify(data)
     )

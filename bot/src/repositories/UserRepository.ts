@@ -14,8 +14,13 @@ export class UserRepository {
     return await UserSessionRepository.getUserSession(userIdString)
   }
 
-  async save(userId: string, data: UserData, ttlSeconds = 30): Promise<void> {
-    await UserSessionRepository.saveUserSession(userId, data, ttlSeconds)
+  async save(
+    userId: string | number,
+    data: UserData,
+    ttlSeconds = this.SESSION_TTL
+  ): Promise<void> {
+    const userIdString = userId.toString()
+    await UserSessionRepository.saveUserSession(userIdString, data, ttlSeconds)
   }
   async update(
     userId: string | number,
@@ -53,7 +58,10 @@ export class UserRepository {
     })
   }
 
-  async clearState(userId: string, ttlSeconds = 300): Promise<void> {
+  async clearState(
+    userId: string,
+    ttlSeconds = this.SESSION_TTL
+  ): Promise<void> {
     const data = await this.get(userId)
     if (!data) return
 
