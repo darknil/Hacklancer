@@ -3,7 +3,7 @@ export const MESSAGES = {
     registration: {
       welcome:
         '👋 Добро пожаловать!\n\nЯ помогу тебе найти команду для разработки приложений! Давай проёдем регистрацию.',
-      enterName: 'Как тебя зовут? :',
+      enterName: 'Как тебя зовут?',
       invalidName:
         'Никнейм должен быть до 30 символов, без HTML и переносов строк.',
       enterCity: 'Укажи город:',
@@ -49,7 +49,7 @@ export const MESSAGES = {
     registration: {
       welcome:
         "👋 Welcome!\n\nI will help you find a team for developing applications! Let's go through registration.",
-      enterName: 'How do you call yourself? :',
+      enterName: 'How do you call yourself?',
       invalidName:
         'Nickname must be up to 30 characters, without HTML or line breaks.',
       enterCity: 'Enter your city:',

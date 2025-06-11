@@ -19,7 +19,7 @@ export class MainAwaitingActionState implements UserStateHandler {
 
   async handle(ctx: Context): Promise<void> {
     const userId = ctx.from?.id
-    if (!userId) return
+    if (!userId) return console.log('User ID is not defined')
 
     const user = await this.userService.find(userId)
     if (!user) return

@@ -17,7 +17,7 @@ export class UserRepository {
   async save(
     userId: string | number,
     data: UserData,
-    ttlSeconds = 30
+    ttlSeconds = this.SESSION_TTL
   ): Promise<void> {
     const userIdString = userId.toString()
     await UserSessionRepository.saveUserSession(userIdString, data, ttlSeconds)
@@ -58,7 +58,10 @@ export class UserRepository {
     })
   }
 
-  async clearState(userId: string, ttlSeconds = 300): Promise<void> {
+  async clearState(
+    userId: string,
+    ttlSeconds = this.SESSION_TTL
+  ): Promise<void> {
     const data = await this.get(userId)
     if (!data) return
 

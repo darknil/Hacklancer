@@ -16,7 +16,7 @@ export class UserService {
       const updatedUser = this.mergeUserDataIfChanged(cachedUser, userData)
 
       if (updatedUser) {
-        await this.userRepository.save(chatId, updatedUser)
+        await this.userRepository.update(chatId, updatedUser)
         return updatedUser
       }
 
