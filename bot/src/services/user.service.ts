@@ -1,6 +1,6 @@
-import { ExternalUserService } from '../external/ExternalUserService'
-import { UserRepository } from '../repositories/UserRepository'
-import { UserData } from '../types/UserData'
+import { ExternalUserService } from '../external/external-user.service'
+import { UserRepository } from '../repositories/user.repository'
+import { UserData } from '../types/user-data.type'
 
 export class UserService {
   constructor(

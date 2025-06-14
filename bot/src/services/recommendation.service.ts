@@ -1,9 +1,9 @@
-import { ExternalRecommendationService } from '../external/ExternalRecommendationService'
-import { ExternalUserService } from '../external/ExternalUserService'
-import { UserProfileRepository } from '../repositories/UserProfileRepository'
-import { UserRepository } from '../repositories/UserRepository'
-import { ProfileData } from '../types/ProfileData'
-import { UserData } from '../types/UserData'
+import { ExternalRecommendationService } from '../external/external-recommendation.service'
+import { ExternalUserService } from '../external/external-user.service'
+import { UserProfileRepository } from '../repositories/user-profile.repository'
+import { UserRepository } from '../repositories/user.repository'
+import { ProfileData } from '../types/profile-data.type'
+import { UserData } from '../types/user-data.type'
 import { RoleService } from './role.service'
 
 export class RecommendationService {

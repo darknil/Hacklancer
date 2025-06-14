@@ -1,6 +1,6 @@
-import { RoleRepository } from '../repositories/RoleRepository'
-import { ExternalRoleService } from '../external/ExternalRoleService'
-import { RoleData } from '../types/RoleData'
+import { RoleRepository } from '../repositories/role.repository'
+import { ExternalRoleService } from '../external/external-role.service'
+import { RoleData } from '../types/role-data.type'
 
 export class RoleService {
   constructor(
