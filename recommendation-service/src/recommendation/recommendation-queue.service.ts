@@ -4,7 +4,7 @@ import { RedisService } from '../redis/redis.service';
 import { UserQueueService } from '../user-queue/user-queue.service';
 import { UserApiService } from 'src/user-api/user-api.service';
 import { UserFilterService } from 'src/user-filter/user-filter.service';
-import { UserQueue } from 'src/types/userQueue';
+import { UserQueue } from 'src/types/user-queue';
 
 @Injectable()
 export class RecommendationQueueService {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
-import { UserQueue } from '../types/userQueue';
+import { UserQueue } from '../types/user-queue';
 import { UserFilterService } from '../user-filter/user-filter.service';
 import { OnEvent } from '@nestjs/event-emitter';
 
