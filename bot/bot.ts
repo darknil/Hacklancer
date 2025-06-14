@@ -1,10 +1,10 @@
 import { Bot, Context } from 'grammy'
 import dotenv from 'dotenv'
-import { CommandHandlerFactory } from './src/handlers/createCommandHandlers'
-import { StateHandlerFactory } from './src/handlers/createStateHandlers'
-import { ServiceConfig } from './src/config/serviceConfig'
+import { CommandHandlerFactory } from './src/handlers/create-command-handlers'
+import { StateHandlerFactory } from './src/handlers/create-state-handlers'
+import { ServiceConfig } from './src/config/service-сonfig'
 import { commands } from './src/constants/commands'
-import { QueryHandlerFactory } from './src/handlers/createQueryHandlers'
+import { QueryHandlerFactory } from './src/handlers/create-query-handlers'
 
 dotenv.config()
 
